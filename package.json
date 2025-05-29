@@ -1,0 +1,44 @@
+{
+  "name": "gotravix-api",
+  "version": "0.0.1",
+  "description": "GoTravix Project",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/d3vr10/gotravix-api.git"
+  },
+  "keywords": [
+    "api",
+    "nodejs",
+    "backend"
+  ],
+  "author": "d3vr10 & ernestoms91",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/d3vr10/gotravix-api/issues"
+  },
+  "homepage": "https://github.com/d3vr10/gotravix-api#readme",
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "drizzle-orm": "^0.44.0",
+    "express": "^5.1.0",
+    "pg": "^8.16.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "zod": "^3.25.34"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.2",
+    "@types/pg": "^8.15.2",
+    "@types/swagger-ui-express": "^4.1.8",
+    "drizzle-kit": "^0.31.1",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  }
+}
