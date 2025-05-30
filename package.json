@@ -1,44 +1,37 @@
 {
-  "name": "gotravix-api",
-  "version": "0.0.1",
-  "description": "GoTravix Project",
-  "main": "index.js",
-  "directories": {
-    "test": "test"
-  },
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "app.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "tsx watch src/app.ts",
+    "build": "tsc",
+    "start": "node dist/app.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/d3vr10/gotravix-api.git"
-  },
-  "keywords": [
-    "api",
-    "nodejs",
-    "backend"
-  ],
-  "author": "d3vr10 & ernestoms91",
+  "keywords": [],
+  "author": "ernestoms91",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/d3vr10/gotravix-api/issues"
-  },
-  "homepage": "https://github.com/d3vr10/gotravix-api#readme",
+  "description": "",
   "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "drizzle-orm": "^0.44.0",
-    "express": "^5.1.0",
-    "pg": "^8.16.0",
-    "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1",
-    "zod": "^3.25.34"
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.9.7",
+    "pg": "^8.16.0"
   },
   "devDependencies": {
-    "@types/express": "^5.0.2",
+    "@types/bcrypt": "^5.0.2",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.8",
     "@types/pg": "^8.15.2",
-    "@types/swagger-ui-express": "^4.1.8",
     "drizzle-kit": "^0.31.1",
+    "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
     "tsx": "^4.19.4",
-    "typescript": "^5.8.3"
+    "typescript": "^5.7.3"
   }
 }

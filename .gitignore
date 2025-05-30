@@ -1,5 +1,14 @@
-node_modules
-build
-npm-debug.log
+# Ignorar dependencias y archivos de entorno
+node_modules/
 .env
+# Ignorar logs
+logs/
+*.log
+# Ignorar archivos de sistema
 .DS_Store
+Thumbs.db
+# Ignorar archivos de compilación
+dist/
+build/
+# No ignorar migrations (Drizzle)
+# migrations/
