@@ -1,8 +1,12 @@
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import generarJWT from "../helpers/jwt";
-import { createUser, getUserById, getAllUsers } from "../repository/userRepository";
+import { createUser, getUserById, getAllUsers, updateUser } from "../repository/userRepository";
 import { NewUser } from "../models/schemas/user";
+import { db } from "../config/db";
+import { createActivationToken, getActivationToken, deleteActivationToken } from "../repository/activationTokenRepository";
+import { sendEmail } from "../helpers/sendEmail";
 
 export const registrer = async (req: Request, res: Response) => {
   try {
@@ -20,10 +24,29 @@ export const registrer = async (req: Request, res: Response) => {
     };
     const user = await createUser(newUser);
 
+    // Generar token de activación seguro
+    const token = crypto.randomBytes(32).toString("hex");
+    const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24);
+
+    // Guardar el token usando el repository
+    await createActivationToken({
+      user_id: user.id,
+      token,
+      expires_at: expiresAt,
+    });
+
+    // Enviar email con la URL de activación
+    const activationUrl = `${process.env.APP_ORIGIN}/activate?token=${token}`;
+    await sendEmail(
+      email,
+      "Activa tu cuenta en GoTravix",
+      `<p>Hola,</p><p>Por favor activa tu cuenta haciendo clic en el siguiente enlace:</p><p><a href="${activationUrl}">${activationUrl}</a></p>`
+    );
+
     // Responder con éxito
     res.status(201).json({
       ok: true,
-      message: '🎉 User registered successfully',
+      message: '🎉 User registered successfully. Please check your email to activate your account.',
       user: { id: user.id, email: user.email, created_at: user.created_at },
     });
   } catch (error) {
@@ -80,4 +103,61 @@ export const login = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const activateUser = async (req: Request, res: Response) => {
+  const { token } = req.body;
+  if (!token || typeof token !== "string") {
+    return res.status(400).json({ ok: false, message: "❌ Token is required" });
+  }
+  try {
+    const activationToken = await getActivationToken(token);
+    if (!activationToken) {
+      return res.status(400).json({ ok: false, message: "❌ Invalid token" });
+    }
+    // Verificar expiración
+    if (activationToken.expires_at < new Date()) {
+      // Token expirado: generar uno nuevo y reenviar email
+      const user = await getUserById(activationToken.user_id);
+      if (!user) {
+        return res.status(404).json({ ok: false, message: "❌ User not found" });
+      }
+      // Borrar el token viejo
+      await deleteActivationToken(token);
+      // Generar y guardar nuevo token
+      const newToken = crypto.randomBytes(32).toString("hex");
+      const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24);
+      await createActivationToken({
+        user_id: user.id,
+        token: newToken,
+        expires_at: expiresAt,
+      });
+      // Reenviar email
+      const activationUrl = `${process.env.APP_ORIGIN}/activate?token=${newToken}`;
+      await sendEmail(
+        user.email,
+        "Activate your GoTravix account",
+        `<p>Hello,</p><p>Your previous activation link expired. Please activate your account using this new link:</p><p><a href="${activationUrl}">${activationUrl}</a></p>`
+      );
+      return res.status(400).json({
+        ok: false,
+        message: "⏰ Token expired. A new activation email has been sent.",
+      });
+    }
+    // Activar usuario
+    await updateUser(activationToken.user_id, { active: true });
+    // Borrar el token
+    await deleteActivationToken(token);
+    return res.status(200).json({
+      ok: true,
+      message: "✅ Account activated successfully! You can now log in.",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      ok: false,
+      message: "💥 Please contact the administrator",
+    });
+  }
+};
+
 
