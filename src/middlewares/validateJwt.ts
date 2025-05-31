@@ -48,11 +48,17 @@ export const validateJWT = async (req: Request, res: Response, next: NextFunctio
 
     // Continue to the next middleware
     next();
-  } catch (error) {
+  } catch (error: any) {
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({
+        ok: false,
+        message: '❌ Token expired. Please log in again.',
+      });
+    }
     console.log(error);
     return res.status(401).json({
       ok: false,
-      message: "❌ Invalid token",
+      message: '❌ Invalid token',
     });
   }
 };
