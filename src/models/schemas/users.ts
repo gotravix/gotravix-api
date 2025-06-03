@@ -1,13 +1,25 @@
 import { relations } from 'drizzle-orm';
 import { pgTable as table, varchar, timestamp, serial, boolean, integer, date } from 'drizzle-orm/pg-core';
+import { userRole } from '@schemas/roles';
 
 export const users = table('users', {
-  id: serial('id').primaryKey(),
-  email: varchar('email', { length: 255 }).notNull().unique(),
+  id: serial('id')
+        .primaryKey(),
+  email: varchar('email', { length: 255 })
+        .notNull()
+        .unique(),
   password: varchar('password', { length: 255 }).notNull(),
-  active: boolean('active').notNull().default(false),
-  created_at: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updated_at: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  role: userRole("role")
+        .notNull(),
+  active: boolean('active')
+        .notNull()
+        .default(false),
+  created_at: timestamp('created_at', { withTimezone: true })
+        .notNull()
+        .defaultNow(),
+  updated_at: timestamp('updated_at', { withTimezone: true })
+        .notNull()
+        .defaultNow(),
 });
 
 
