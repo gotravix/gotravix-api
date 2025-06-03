@@ -1,7 +1,7 @@
 import { relations } from 'drizzle-orm';
-import { pgTable, varchar, timestamp, serial, boolean, integer, date } from 'drizzle-orm/pg-core';
+import { pgTable as table, varchar, timestamp, serial, boolean, integer, date } from 'drizzle-orm/pg-core';
 
-export const users = pgTable('users', {
+export const users = table('users', {
   id: serial('id').primaryKey(),
   email: varchar('email', { length: 255 }).notNull().unique(),
   password: varchar('password', { length: 255 }).notNull(),
@@ -11,7 +11,7 @@ export const users = pgTable('users', {
 });
 
 
-export const patients = pgTable("patients", {
+export const patients = table("patients", {
     userId: integer("user_id")
         .primaryKey()
         .references(() => users.id),
@@ -30,7 +30,7 @@ export const patients = pgTable("patients", {
         .notNull(),
 })
 
-export const clinics = pgTable("clinics", {
+export const clinics = table("clinics", {
     userId: integer("user_id")
         .references(() => users.id)
         .primaryKey(),

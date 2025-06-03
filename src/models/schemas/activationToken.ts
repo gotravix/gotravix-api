@@ -1,7 +1,7 @@
-import { pgTable, varchar, timestamp, serial, integer } from 'drizzle-orm/pg-core';
-import { users } from './users'; // Adjust the path as needed to where your users table is defined
+import { pgTable as table, varchar, timestamp, serial, integer } from 'drizzle-orm/pg-core';
+import { users } from '@schemas/users'; // Adjust the path as needed to where your users table is defined
 
-export const activationTokens = pgTable('activation_tokens', {
+export const activationTokens = table('activation_tokens', {
   id: serial('id').primaryKey(),
   user_id: integer('user_id').notNull().unique().references(() => users.id, { onDelete: 'cascade' }),
   token: varchar('token', { length: 255 }).notNull().unique(),
