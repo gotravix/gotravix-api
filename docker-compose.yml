@@ -16,7 +16,7 @@ services:
       - PGADMIN_DEFAULT_PASSWORD=testing123
       - PGADMIN_DEFAULT_EMAIL=admin@brakusa.com
     volumes:
-      - pgadmin_data:/var/lib/pgadmin/data
+      - pgadmin_data:/var/lib/pgadmin
 
 volumes:
   pgadmin_data:
