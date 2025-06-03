@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres:17.5-bookworm
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=gotravix
+      - POSTGRES_PASSWORD=testing123
+      - POSTGRES_DB_DATA=/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    ports:
+      - 8080:80
+    environment:
+      - PGADMIN_DEFAULT_PASSWORD=testing123
+      - PGADMIN_DEFAULT_EMAIL=admin@brakusa.com
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin/data
+
+volumes:
+  pgadmin_data:
+    driver: local
+
+networks:
+  gotravix:
