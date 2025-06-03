@@ -7,7 +7,8 @@
     "build": "tsc",
     "start": "node dist/app.js",
     "db:push": "dotenv -e .env drizzle-kit push",
-    "db:generate": "dotenv -e .env drizzle-kit generate"
+    "db:generate": "dotenv -e .env drizzle-kit generate",
+    "db:seed": "tsx src/utils/seed.ts"
   },
   "keywords": [],
   "author": "ernestoms91",
@@ -16,6 +17,7 @@
   "dependencies": {
     "@faker-js/faker": "^9.8.0",
     "bcrypt": "^5.1.1",
+    "chalk": "^5.4.1",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "drizzle-orm": "^0.44.0",
