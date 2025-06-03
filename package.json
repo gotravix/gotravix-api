@@ -12,6 +12,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@faker-js/faker": "^9.8.0",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
@@ -29,6 +30,8 @@
     "@types/jsonwebtoken": "^9.0.8",
     "@types/nodemailer": "^6.4.17",
     "@types/pg": "^8.15.2",
+    "add": "^2.0.6",
+    "dotenv-cli": "^8.0.0",
     "drizzle-kit": "^0.31.1",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
