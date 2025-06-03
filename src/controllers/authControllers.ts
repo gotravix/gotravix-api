@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import generarJWT from "../helpers/jwt";
 import { createUser, getUserById, getAllUsers, updateUser } from "../repository/userRepository";
-import { NewUser } from "../models/schemas/user";
+import { NewUser } from "@schemas/users";
 import { db } from "../config/db";
 import { createActivationToken, getActivationToken, deleteActivationToken } from "../repository/activationTokenRepository";
 import { sendEmail } from "../helpers/sendEmail";
