@@ -7,6 +7,8 @@ services:
       - POSTGRES_USER=gotravix
       - POSTGRES_PASSWORD=testing123
       - POSTGRES_DB_DATA=/var/lib/postgresql/data
+    networks:
+      - gotravix
 
   pgadmin:
     image: dpage/pgadmin4:latest
@@ -17,6 +19,8 @@ services:
       - PGADMIN_DEFAULT_EMAIL=admin@brakusa.com
     volumes:
       - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - gotravix
 
 volumes:
   pgadmin_data:
