@@ -122,12 +122,12 @@ export default async function seed(args: Args = getArgs()) {
       `${padEmoji('🕵️')}(guests): ${insertionCounter.guests}`,
       `${padEmoji('🤕')}(patients): ${insertionCounter.patients}`,
       `${padEmoji('🏥')}(clinics): ${insertionCounter.clinics}`,
-      `${padEmoji('👨‍⚖')}(lawyers): ${insertionCounter.lawyers as undefined ?? 0}`,
+      `${padEmoji('👨‍⚖')}(lawyers): ${(insertionCounter as any).lawyers as undefined ?? 0}`,
     ].join('\n'));
 
     logger.info(chalk.green("🌱 Seeding completed!"));
 
-    await pool.end()
+    pool.end()
 
 }
 
