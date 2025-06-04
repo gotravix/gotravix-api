@@ -1,33 +1,33 @@
-import { db } from '../config/db';
-import { users, User, NewUser } from '../models/schemas/user';
+import { db } from '@/config/db';
+import { usersSchema, User, NewUser } from '@schemas/users';
 import { eq } from 'drizzle-orm';
 
 export const getAllUsers = async (): Promise<User[]> => {
-  return await db.select().from(users);
+  return await db.select().from(usersSchema);
 };
 
 export const getUserById = async (id: number): Promise<User | undefined> => {
-  const result = await db.select().from(users).where(eq(users.id, id));
+  const result = await db.select().from(usersSchema).where(eq(usersSchema.id, id));
   return result[0];
 };
 
 export const createUser = async (user: NewUser): Promise<User> => {
-  const [created] = await db.insert(users).values(user).returning();
+  const [created] = await db.insert(usersSchema).values(user).returning();
   return created;
 };
 
 export const updateUser = async (id: number, data: Partial<NewUser>): Promise<User | undefined> => {
-  const [updated] = await db.update(users).set(data).where(eq(users.id, id)).returning();
+  const [updated] = await db.update(usersSchema).set(data).where(eq(usersSchema.id, id)).returning();
   return updated;
 };
 
 export const deleteUser = async (id: number): Promise<User | undefined> => {
-  const [deleted] = await db.delete(users).where(eq(users.id, id)).returning();
+  const [deleted] = await db.delete(usersSchema).where(eq(usersSchema.id, id)).returning();
   return deleted;
 };
 
 export const getUserByEmail = async (email: string): Promise<Omit<User, 'password'> | undefined> => {
-  const result = await db.select().from(users).where(eq(users.email, email));
+  const result = await db.select().from(usersSchema).where(eq(usersSchema.email, email));
   if (result[0]) {
     const { password, ...rest } = result[0];
     return rest;
