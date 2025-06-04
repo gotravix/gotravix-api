@@ -7,11 +7,13 @@ import { NewUser } from "@schemas/users";
 import { db } from "../config/db";
 import { createActivationToken, getActivationToken, deleteActivationToken } from "../repository/activationTokenRepository";
 import { sendEmail } from "../helpers/sendEmail";
+import { getPatientByUserId } from '../repository/patientRepository';
+import { getClinicByUserId } from '../repository/clinicRepository';
 
 export const registrer = async (req: Request, res: Response) => {
   try {
     // Tomar los datos del body
-    const { email, password } = req.body;
+    const { email, password, role , username } = req.body;
 
     // Encriptar la contraseña
     const saltRounds = 10;
@@ -20,7 +22,9 @@ export const registrer = async (req: Request, res: Response) => {
     // Crear el usuario en la base de datos
     const newUser: NewUser = {
       email,
+      username: email,
       password: hashedPassword,
+      role
     };
     const user = await createUser(newUser);
 
@@ -36,7 +40,8 @@ export const registrer = async (req: Request, res: Response) => {
     });
 
     // Enviar email con la URL de activación
-    const activationUrl = `${process.env.APP_ORIGIN}/activate?token=${token}`;
+    const serverUrl = req.protocol + '://' + req.get('host');
+    const activationUrl = `${serverUrl}/activate?token=${token}`;
     await sendEmail(
       email,
       "Activa tu cuenta en GoTravix",
@@ -93,6 +98,9 @@ export const login = async (req: Request, res: Response) => {
       message: '✅ Login successful',
       id: usuario.id,
       email: usuario.email,
+      usernname: usuario.username,
+      role: usuario.role,
+      wizard: usuario.wizard,
       token,
     });
   } catch (error) {
@@ -144,12 +152,26 @@ export const activateUser = async (req: Request, res: Response) => {
       });
     }
     // Activar usuario
-    await updateUser(activationToken.user_id, { active: true });
+    const user = await updateUser(activationToken.user_id, { active: true });
     // Borrar el token
     await deleteActivationToken(token);
+
+    if (!user) {
+      return res.status(404).json({ ok: false, message: "❌ User not found after activation" });
+    }
+
+    // Generar JWT para el usuario activado
+    const tokenJwt = await generarJWT(user.id.toString(), user.email, user.email);
+
     return res.status(200).json({
       ok: true,
-      message: "✅ Account activated successfully! You can now log in.",
+      message: "✅ Account activated successfully!",
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      role: user.role,
+      wizard: user.wizard,
+      token: tokenJwt,
     });
   } catch (error) {
     console.error(error);

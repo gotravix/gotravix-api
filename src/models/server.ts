@@ -18,6 +18,7 @@ class Server {
         this.paths = {
             auth: '/api/v1/auth',
             users: '/api/v1/users',      
+            patients: '/api/v1/patients',      
         }
 
         // Middlewares
@@ -47,9 +48,9 @@ class Server {
     }
 
     routes() {
-
         this.app.use(this.paths.auth, require('../routes/authRoutes'));
         this.app.use(this.paths.users, require('../routes/usersRoutes'));
+        this.app.use(this.paths.patients, require('../routes/patientRoutes'));
     }
 
 

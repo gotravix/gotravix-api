@@ -14,6 +14,9 @@ export const usersSchema = table('users', {
     active: boolean('active')
             .notNull()
             .default(false),
+    wizard: boolean('wizard')
+            .notNull()
+            .default(false),
     created_at: timestamp('created_at', { withTimezone: true })
             .notNull()
             .defaultNow(),

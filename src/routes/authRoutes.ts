@@ -1,3 +1,4 @@
+import { validateRoleNotEmpty } from "@/middlewares/validateRoleNotEmpty";
 import {activateUser, login, registrer} from "../controllers/authControllers";
 import validateLoginFields from "../middlewares/validateLoginFields";
 import { validateUniqueEmail } from "../middlewares/validateUniqueEmail";
@@ -9,7 +10,7 @@ const { Router } = require('express');
 
 const router = Router();
 
-router.post('/register',[ validateUserForRegister , validateUniqueEmail], registrer);
+router.post('/register',[ validateUserForRegister , validateUniqueEmail , validateRoleNotEmpty], registrer);
 router.post('/login',[ validateLoginFields, validateUserIsActive], login);
 router.post('/activate', activateUser);
 
