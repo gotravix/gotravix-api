@@ -4,7 +4,7 @@ import yargs from "yargs"
 import { hideBin } from "yargs/helpers";
 import z from "zod";
 import { randomInt } from 'crypto';
-import { db } from '@/config/db';
+import { db, pool } from '@/config/db';
 import { clinicsSchema, patientsSchema, usersSchema } from '@/models/schemas';
 import logger from '../logger';
 import { padEmoji } from '../utils';
@@ -19,7 +19,6 @@ const argsSchema = z.object({
 export type Args = z.infer<typeof argsSchema>;
 
 export function getArgs(): Args {
-  console.warn(JSON.stringify(process.argv))
   const argv = yargs(hideBin(process.argv))
     .option('user.count', {
       type: 'number',
@@ -41,7 +40,6 @@ export function getArgs(): Args {
 }
 
 export default async function seed(args: Args = getArgs()) {
-    console.log(JSON.stringify(args))
     const roles = ['clinic', 'patient', 'guest'] as const;
     const insertionCounter = {
       guests: 0,
@@ -128,6 +126,8 @@ export default async function seed(args: Args = getArgs()) {
     ].join('\n'));
 
     logger.info(chalk.green("🌱 Seeding completed!"));
+
+    await pool.end()
 
 }
 

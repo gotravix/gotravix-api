@@ -1,4 +1,4 @@
-import { db } from "@/config/db";
+import { db, pool } from "@/config/db";
 import { sql } from "drizzle-orm";
 
 
@@ -19,7 +19,7 @@ const truncate = async () => {
         ].join(" ") + ";"
         )
     )
-    
+    await pool.end()   
 }
 
 if (require.main === module) {
