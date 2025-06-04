@@ -40,11 +40,14 @@ export function getArgs(): Args {
 }
 
 export default async function seed(args: Args = getArgs()) {
-    const roles = ['admin', 'clinic', 'patient', 'marketer', 'lawyer', 'guest'] as const;
+    const roles = ['admin', 'clinic', 'patient', 'marketer', 'lawyer'] as const;
     const insertionCounter = {
       guests: 0,
       patients: 0,
       clinics: 0,
+      lawyers: 0,
+      marketers: 0,
+      admins: 0,
     }
     console.log(chalk.green("🌱 Seeding database ..."));
 
@@ -61,7 +64,10 @@ export default async function seed(args: Args = getArgs()) {
 
         const [userRow] = await db
           .insert(usersSchema)
-          .values(user)
+          .values({
+            ...user,
+            // wizard, created_at, updated_at se autogeneran
+          })
           .returning();
         
         if (currentRole === 'patient') {
@@ -85,7 +91,6 @@ export default async function seed(args: Args = getArgs()) {
             .returning();
           
           insertionCounter.patients++
-
         } else if (currentRole === 'clinic') {
           const clinic = {
             name: faker.company.name(),
@@ -103,8 +108,12 @@ export default async function seed(args: Args = getArgs()) {
             .returning();
           
           insertionCounter.clinics++
-
-          
+        } else if (currentRole === 'lawyer') {
+          insertionCounter.lawyers++
+        } else if (currentRole === 'marketer') {
+          insertionCounter.marketers++
+        } else if (currentRole === 'admin') {
+          insertionCounter.admins++
         } else {
           insertionCounter.guests++
         }
@@ -121,7 +130,9 @@ export default async function seed(args: Args = getArgs()) {
       🕵️  (guests): ${insertionCounter.guests}
       🤕  (patients): ${insertionCounter.patients}
       🏥  (clinics): ${insertionCounter.clinics}
-      👨‍⚖️  (lawyers): ${insertionCounter.lawyers as undefined ?? 0}
+      👨‍⚖️  (lawyers): ${insertionCounter.lawyers}
+      📈  (marketers): ${insertionCounter.marketers}
+      👑  (admins): ${insertionCounter.admins}
     `)
 
 }
