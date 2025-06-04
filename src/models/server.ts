@@ -1,6 +1,6 @@
 import express, { Application } from 'express';
 import cors from 'cors';
-import { PORT } from '../constants/env';
+import { APP_PORT } from '../constants/env';
 import { pool } from '../config/db';
 import { errorHandler } from '../middlewares/errorHandler';
 
@@ -13,7 +13,7 @@ class Server {
 
     constructor() {
         this.app = express();
-        this.port = `${PORT}`;
+        this.port = `${APP_PORT}`;
 
         this.paths = {
             auth: '/api/v1/auth',
