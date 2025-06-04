@@ -8,7 +8,8 @@
     "start": "node dist/app.js",
     "db:push": "dotenv -e .env drizzle-kit push",
     "db:generate": "dotenv -e .env drizzle-kit generate",
-    "db:seed": "tsx src/utils/seed.ts"
+    "db:seed": "tsx src/utils/scripts/seed.ts",
+    "db:truncate": "tsx src/utils/scripts/truncate.ts",
   },
   "keywords": [],
   "author": "ernestoms91",
