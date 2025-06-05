@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createUser, getAllUsers, updateUser } from '../repository/userRepository';
+import { createUser, getAllUsers, updateUser } from '@repository/userRepository';
 import z from "zod";
 
 
