@@ -1,5 +1,5 @@
-import { db } from '../config/db';
-import { usersSchema, User, NewUser } from '../models/schemas/users';
+import { db } from '@/config/db';
+import { usersSchema, User, NewUser } from '@/models/schemas/users';
 import { eq } from 'drizzle-orm';
 
 export const getAllUsers = async (): Promise<User[]> => {

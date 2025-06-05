@@ -107,13 +107,17 @@
     /* Completeness */
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true,                                 /* Skip type checking all .d.ts files. */
-    "baseUrl": ".",
+    "baseUrl": "./src",
     "paths": {
-      "@/*": ["src/*"],
-      "@schemas/*": ["src/models/schemas/*"],
-      "@middlewares/*": ["src/middlewares/*"],
-      "@controllers/*": ["src/controllers/*"],
-      "@repositories/*": ["src/repositories/*"]
+      "@/*": ["./*"],
+      "@schemas/*": ["models/schemas/*"],
+      "@middlewares/*": ["middlewares/*"],
+      "@controllers/*": ["controllers/*"],
+      "@repository/*": ["repository/*"],
+      "@routers/*": ["routers/*"],
+      "@utils/*": ["utils/*"],
+      "@scripts/*": ["utils/scripts/*"],
+      "@helpers/*": ["helpers/*"]
     }
 
   },

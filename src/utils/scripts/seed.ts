@@ -4,16 +4,16 @@ import yargs from "yargs"
 import { hideBin } from "yargs/helpers";
 import z from "zod";
 import { randomInt } from 'crypto';
-import { db } from '../config/db';
-import { clinicsSchema, patientsSchema, usersSchema } from '../models/schemas';
-import logger from './logger';
+import { db, pool } from '@/config/db';
+import { clinicsSchema, patientsSchema, usersSchema } from '@/models/schemas';
+import logger from '@utils/logger';
+import { padEmoji } from '@utils/utils';
 
 const argsSchema = z.object({
   user: z.object({
     count: z.coerce.number().int().min(1).max(1000).default(50),
     name: z.string().optional(),
   }),
-  dryRun: z.boolean().optional(),
 });
 
 export type Args = z.infer<typeof argsSchema>;
@@ -40,22 +40,20 @@ export function getArgs(): Args {
 }
 
 export default async function seed(args: Args = getArgs()) {
-    const roles = ['admin', 'clinic', 'patient', 'marketer', 'lawyer'] as const;
+    const roles = ['clinic', 'patient', 'guest'] as const;
     const insertionCounter = {
       guests: 0,
       patients: 0,
       clinics: 0,
-      lawyers: 0,
-      marketers: 0,
-      admins: 0,
     }
-    console.log(chalk.green("🌱 Seeding database ..."));
+    
+    logger.info(chalk.green("🌱 Seeding database ..."));
 
     async function addUsers() {
       for (let i = 0; i < args.user.count; i++) {
         const currentRole = roles[randomInt(0, roles.length)];
         const user = {
-          username: faker.person.fullName(),
+          username: faker.internet.username(),
           email: faker.internet.email(),
           role: currentRole,
           password: faker.internet.password(),
@@ -64,10 +62,7 @@ export default async function seed(args: Args = getArgs()) {
 
         const [userRow] = await db
           .insert(usersSchema)
-          .values({
-            ...user,
-            // wizard, created_at, updated_at se autogeneran
-          })
+          .values(user)
           .returning();
         
         if (currentRole === 'patient') {
@@ -91,6 +86,7 @@ export default async function seed(args: Args = getArgs()) {
             .returning();
           
           insertionCounter.patients++
+
         } else if (currentRole === 'clinic') {
           const clinic = {
             name: faker.company.name(),
@@ -108,12 +104,8 @@ export default async function seed(args: Args = getArgs()) {
             .returning();
           
           insertionCounter.clinics++
-        } else if (currentRole === 'lawyer') {
-          insertionCounter.lawyers++
-        } else if (currentRole === 'marketer') {
-          insertionCounter.marketers++
-        } else if (currentRole === 'admin') {
-          insertionCounter.admins++
+
+          
         } else {
           insertionCounter.guests++
         }
@@ -125,15 +117,17 @@ export default async function seed(args: Args = getArgs()) {
       await addUsers()
     }
 
-    logger.info(`
-      Inserted the following records:
-      🕵️  (guests): ${insertionCounter.guests}
-      🤕  (patients): ${insertionCounter.patients}
-      🏥  (clinics): ${insertionCounter.clinics}
-      👨‍⚖️  (lawyers): ${insertionCounter.lawyers}
-      📈  (marketers): ${insertionCounter.marketers}
-      👑  (admins): ${insertionCounter.admins}
-    `)
+    console.log([
+      'Inserted the following records:',
+      `${padEmoji('🕵️')}(guests): ${insertionCounter.guests}`,
+      `${padEmoji('🤕')}(patients): ${insertionCounter.patients}`,
+      `${padEmoji('🏥')}(clinics): ${insertionCounter.clinics}`,
+      `${padEmoji('👨‍⚖')}(lawyers): ${(insertionCounter as any).lawyers as undefined ?? 0}`,
+    ].join('\n'));
+
+    console.log(chalk.green("🌱 Seeding completed!"));
+
+    pool.end()
 
 }
 

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { getUserById } from "../repository/userRepository";
-import { JWT_SECRET } from "../constants/env";
+import { getUserById } from "@/repository/userRepository";
+import { JWT_SECRET } from "@/constants/env";
 
 interface UsuarioToken {
   id: string;

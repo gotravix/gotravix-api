@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { getPatientByUserId } from "../repository/patientRepository";
+import { getPatientByUserId } from "@/repository/patientRepository";
 
 export const validatePatientUserId = async (req: Request, res: Response, next: NextFunction) => {
   const user = (req as any).user;

@@ -1,8 +1,8 @@
 import express, { Application } from 'express';
 import cors from 'cors';
-import { PORT } from '../constants/env';
-import { pool } from '../config/db';
-import { errorHandler } from '../middlewares/errorHandler';
+import { APP_PORT } from '@/constants/env';
+import { pool } from '@/config/db';
+import { errorHandler } from '@/middlewares/errorHandler';
 
 
 class Server {
@@ -13,7 +13,7 @@ class Server {
 
     constructor() {
         this.app = express();
-        this.port = `${PORT}`;
+        this.port = `${APP_PORT}`;
 
         this.paths = {
             auth: '/api/v1/auth',
@@ -48,9 +48,9 @@ class Server {
     }
 
     routes() {
-        this.app.use(this.paths.auth, require('../routes/authRoutes'));
-        this.app.use(this.paths.users, require('../routes/usersRoutes'));
-        this.app.use(this.paths.patients, require('../routes/patientRoutes'));
+        this.app.use(this.paths.auth, require('@/routes/authRoutes'));
+        this.app.use(this.paths.users, require('@/routes/usersRoutes'));
+        this.app.use(this.paths.patients, require('@/routes/patientRoutes'));
     }
 
 

@@ -1,14 +1,14 @@
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
-import generarJWT from "../helpers/jwt";
-import { createUser, getUserById, updateUser, getUserByEmail } from "../repository/userRepository";
-import { NewUser } from "../models/schemas/users";
-import { createActivationToken, getActivationToken, deleteActivationToken } from "../repository/activationTokenRepository";
-import { sendEmail } from "../helpers/sendEmail";
-import { getPatientByUserId } from '../repository/patientRepository';
-import { getClinicByUserId } from '../repository/clinicRepository';
-import { getEmptyPatient, getEmptyClinic } from '../utils/emptySchemas';
+import generarJWT from "@/helpers/jwt";
+import { createUser, getUserById, updateUser, getUserByEmail } from "@/repository/userRepository";
+import { NewUser } from "@/models/schemas/users";
+import { createActivationToken, getActivationToken, deleteActivationToken } from "@/repository/activationTokenRepository";
+import { getPatientByUserId } from '@/repository/patientRepository';
+import { getClinicByUserId } from '@/repository/clinicRepository';
+import { getEmptyPatient, getEmptyClinic } from '@/utils/emptySchemas';
+import { sendEmail } from "@helpers/sendEmail";
 
 export const registrer = async (req: Request, res: Response) => {
   try {
