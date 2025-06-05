@@ -6,8 +6,8 @@ import z from "zod";
 import { randomInt } from 'crypto';
 import { db, pool } from '@/config/db';
 import { clinicsSchema, patientsSchema, usersSchema } from '@/models/schemas';
-import logger from '../logger';
-import { padEmoji } from '../utils';
+import logger from '@utils/logger';
+import { padEmoji } from '@utils/utils';
 
 const argsSchema = z.object({
   user: z.object({

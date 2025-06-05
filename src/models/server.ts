@@ -1,8 +1,8 @@
 import express, { Application } from 'express';
 import cors from 'cors';
-import { APP_PORT } from '../constants/env';
-import { pool } from '../config/db';
-import { errorHandler } from '../middlewares/errorHandler';
+import { APP_PORT } from '@/constants/env';
+import { pool } from '@/config/db';
+import { errorHandler } from '@/middlewares/errorHandler';
 
 
 class Server {
