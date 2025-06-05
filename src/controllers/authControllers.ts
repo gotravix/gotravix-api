@@ -4,7 +4,7 @@ import crypto from "crypto";
 import generarJWT from "@/helpers/jwt";
 import { createUser, getUserById, updateUser, getUserByEmail } from "@/repository/userRepository";
 import { NewUser } from "@/models/schemas/users";
-import { createActivationToken, getActivationToken, deleteActivationToken } from "../repository/activationTokenRepository";
+import { createActivationToken, getActivationToken, deleteActivationToken } from "@/repository/activationTokenRepository";
 import { getPatientByUserId } from '@/repository/patientRepository';
 import { getClinicByUserId } from '@/repository/clinicRepository';
 import { getEmptyPatient, getEmptyClinic } from '@/utils/emptySchemas';
