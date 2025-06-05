@@ -17,7 +17,7 @@ export const createPatientEndpoint = async (req: Request, res: Response) => {
   const { userId } = req.body;
   const { db } = await import("../config/db");
   const { updateUser } = await import("../repository/userRepository");
-  const { patientsSchema } = await import("@/models/schemas");
+  const { patientsSchema } = await import("../models/schemas");
   try {
     await db.transaction(async (tx) => {
       const now = new Date();
