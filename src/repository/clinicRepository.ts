@@ -1,5 +1,5 @@
-import { db } from '@/config/db';
-import { clinicsSchema, Clinic, NewClinic } from '@schemas/users';
+import { db } from '../config/db';
+import { clinicsSchema, Clinic, NewClinic } from '../models/schemas/users';
 import { eq } from 'drizzle-orm';
 
 export const getClinicByUserId = async (userId: number): Promise<Clinic | undefined> => {

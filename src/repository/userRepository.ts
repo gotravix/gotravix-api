@@ -1,5 +1,5 @@
-import { db } from '@/config/db';
-import { usersSchema, User, NewUser } from '@schemas/users';
+import { db } from '../config/db';
+import { usersSchema, User, NewUser } from '../models/schemas/users';
 import { eq } from 'drizzle-orm';
 
 export const getAllUsers = async (): Promise<User[]> => {
@@ -16,8 +16,9 @@ export const createUser = async (user: NewUser): Promise<User> => {
   return created;
 };
 
-export const updateUser = async (id: number, data: Partial<NewUser>): Promise<User | undefined> => {
-  const [updated] = await db.update(usersSchema).set(data).where(eq(usersSchema.id, id)).returning();
+export const updateUser = async (id: number, data: Partial<NewUser>, tx?: any): Promise<User | undefined> => {
+  const executor = tx || db;
+  const [updated] = await executor.update(usersSchema).set(data).where(eq(usersSchema.id, id)).returning();
   return updated;
 };
 
@@ -26,11 +27,15 @@ export const deleteUser = async (id: number): Promise<User | undefined> => {
   return deleted;
 };
 
-export const getUserByEmail = async (email: string): Promise<Omit<User, 'password'> | undefined> => {
+export const getUserByEmail = async (email: string, withPassword = false): Promise<User | Omit<User, 'password'> | undefined> => {
   const result = await db.select().from(usersSchema).where(eq(usersSchema.email, email));
   if (result[0]) {
-    const { password, ...rest } = result[0];
-    return rest;
+    if (withPassword) {
+      return result[0];
+    } else {
+      const { password, ...rest } = result[0];
+      return rest;
+    }
   }
   return undefined;
 };

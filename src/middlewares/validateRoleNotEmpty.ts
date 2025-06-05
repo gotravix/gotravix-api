@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { userRole } from "@schemas/roles";
+import { userRole } from "../models/schemas/roles";
 
 export const validateRoleNotEmpty = (req: Request, res: Response, next: NextFunction) => {
   const { role } = req.body;

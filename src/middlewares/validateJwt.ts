@@ -23,10 +23,8 @@ export const validateJWT = async (req: Request, res: Response, next: NextFunctio
   try {
     // Verify and get the id from the token
     const { id } = jwt.verify(token, JWT_SECRET) as UsuarioToken;
-
     // Get the user from the database using Drizzle
     const user = await getUserById(Number(id));
-
     // Check if the user exists
     if (!user) {
       return res.status(401).json({

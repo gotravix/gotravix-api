@@ -1,6 +1,6 @@
 import { relations } from 'drizzle-orm';
 import { pgTable as table, varchar, timestamp, serial, boolean, integer, date } from 'drizzle-orm/pg-core';
-import { userRole } from '@schemas/roles';
+import { userRole } from "./roles";
 
 export const usersSchema = table('users', {
     id: serial('id')
@@ -29,7 +29,7 @@ export const usersSchema = table('users', {
 export const patientsSchema = table("patients", {
     userId: integer("user_id")
         .primaryKey()
-        .references(() => usersSchema.id),
+        .references(() => usersSchema.id, { onDelete: "cascade" }),
     givenName: varchar("given_name", { length: 128 })
         .notNull(),
     middleName: varchar("middle_name", { length: 128 }),

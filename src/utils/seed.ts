@@ -4,8 +4,8 @@ import yargs from "yargs"
 import { hideBin } from "yargs/helpers";
 import z from "zod";
 import { randomInt } from 'crypto';
-import { db } from '@/config/db';
-import { clinicsSchema, patientsSchema, usersSchema } from '@/models/schemas';
+import { db } from '../config/db';
+import { clinicsSchema, patientsSchema, usersSchema } from '../models/schemas';
 import logger from './logger';
 
 const argsSchema = z.object({

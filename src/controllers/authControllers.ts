@@ -2,13 +2,13 @@ import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import generarJWT from "../helpers/jwt";
-import { createUser, getUserById, getAllUsers, updateUser } from "../repository/userRepository";
-import { NewUser } from "@schemas/users";
-import { db } from "../config/db";
+import { createUser, getUserById, updateUser, getUserByEmail } from "../repository/userRepository";
+import { NewUser } from "../models/schemas/users";
 import { createActivationToken, getActivationToken, deleteActivationToken } from "../repository/activationTokenRepository";
 import { sendEmail } from "../helpers/sendEmail";
 import { getPatientByUserId } from '../repository/patientRepository';
 import { getClinicByUserId } from '../repository/clinicRepository';
+import { getEmptyPatient, getEmptyClinic } from '../utils/emptySchemas';
 
 export const registrer = async (req: Request, res: Response) => {
   try {
@@ -27,6 +27,9 @@ export const registrer = async (req: Request, res: Response) => {
       role
     };
     const user = await createUser(newUser);
+
+    // Elimina la creación automática del registro asociado vacío
+    // Ahora NO se crea ningún registro en patient o clinic hasta que se llenen los datos
 
     // Generar token de activación seguro
     const token = crypto.randomBytes(32).toString("hex");
@@ -52,7 +55,7 @@ export const registrer = async (req: Request, res: Response) => {
     res.status(201).json({
       ok: true,
       message: '🎉 User registered successfully. Please check your email to activate your account.',
-      user: { id: user.id, email: user.email, created_at: user.created_at },
+      user: { id: user.id, email: user.email, role:user.role, created_at: user.created_at },
     });
   } catch (error) {
     console.error(error);
@@ -67,11 +70,8 @@ export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   try {
-    // Buscar al usuario por email
-    const usuarios = await getAllUsers();
-    const usuario = usuarios.find(
-      (u) => u.email === email
-    );
+    // Buscar al usuario por email (incluyendo contraseña)
+    const usuario = await getUserByEmail(email, true) as any; // true: incluir contraseña
 
     if (!usuario) {
       return res.status(400).json({
@@ -90,19 +90,32 @@ export const login = async (req: Request, res: Response) => {
       });
     }
 
+    // Consultar datos asociados según el rol
+    let userData: any = {
+      id: usuario.id,
+      email: usuario.email,
+      username: usuario.username,
+      role: usuario.role,
+      wizard: usuario.wizard,
+    };
+    if (usuario.role === 'patient') {
+      const patient = await getPatientByUserId(usuario.id);
+      userData = { ...userData, ...(patient ? patient : getEmptyPatient(usuario.id)) };
+    } else if (usuario.role === 'clinic') {
+      const clinic = await getClinicByUserId(usuario.id);
+      userData = { ...userData, ...(clinic ? clinic : getEmptyClinic(usuario.id)) };
+    }
+
     // Generar JWT
     const token = await generarJWT(usuario.id.toString(), usuario.email, usuario.email);
 
     res.status(200).json({
       ok: true,
       message: '✅ Login successful',
-      id: usuario.id,
-      email: usuario.email,
-      usernname: usuario.username,
-      role: usuario.role,
-      wizard: usuario.wizard,
       token,
+      user: userData,
     });
+
   } catch (error) {
     console.error(error);
     return res.status(500).json({
@@ -160,18 +173,30 @@ export const activateUser = async (req: Request, res: Response) => {
       return res.status(404).json({ ok: false, message: "❌ User not found after activation" });
     }
 
+    // Consultar datos asociados según el rol para la respuesta
+    let userData: any = {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      role: user.role,
+      wizard: user.wizard,
+    };
+    if (user.role === 'patient') {
+      const patient = await getPatientByUserId(user.id);
+      userData = { ...userData, ...(patient ? patient : getEmptyPatient(user.id)) };
+    } else if (user.role === 'clinic') {
+      const clinic = await getClinicByUserId(user.id);
+      userData = { ...userData, ...(clinic ? clinic : getEmptyClinic(user.id)) };
+    }
+
     // Generar JWT para el usuario activado
     const tokenJwt = await generarJWT(user.id.toString(), user.email, user.email);
 
     return res.status(200).json({
       ok: true,
       message: "✅ Account activated successfully!",
-      id: user.id,
-      email: user.email,
-      username: user.username,
-      role: user.role,
-      wizard: user.wizard,
       token: tokenJwt,
+      user: userData,
     });
   } catch (error) {
     console.error(error);

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { getPatientByUserId, createPatient, updatePatient, deletePatient } from "../repository/patientRepository";
+import { getPatientByUserId, updatePatient, deletePatient } from "../repository/patientRepository";
 
 export const getPatient = async (req: Request, res: Response) => {
   const userId = Number(req.params.userId);
@@ -14,9 +14,41 @@ export const getPatient = async (req: Request, res: Response) => {
 };
 
 export const createPatientEndpoint = async (req: Request, res: Response) => {
+  const { userId } = req.body;
+  const { db } = await import("../config/db");
+  const { updateUser } = await import("../repository/userRepository");
+  const { patientsSchema } = await import("@/models/schemas");
   try {
-    const patient = await createPatient(req.body);
-    res.status(201).json({ ok: true, patient });
+    await db.transaction(async (tx) => {
+      const now = new Date();
+      // 1. Actualizar wizard a true y username
+      const updatedUser = await updateUser(userId, { wizard: true, username: req.body.username, updated_at: now  }, tx);
+      if (!updatedUser) {
+        throw new Error("User not found");
+      }
+      // 2. Crear paciente con fechas
+      
+      const patientData = {
+        ...req.body,
+        createdAt: now,
+        updatedAt: now,
+      };
+      const [patient] = await tx.insert(patientsSchema).values(patientData).returning();
+      if (!patient) {
+        throw new Error("Error creating patient");
+      }
+      // Unificar datos de user y patient en un solo objeto
+      const userPatient = {
+        id: updatedUser.id,
+        email: updatedUser.email,
+        username: updatedUser.username,
+        role: updatedUser.role,
+        wizard: updatedUser.wizard,
+        active: updatedUser.active,
+        ...patient
+      };
+      res.status(201).json({ ok: true, user: userPatient });
+    });
   } catch (error) {
     res.status(500).json({ ok: false, message: "Error creating patient" });
   }
