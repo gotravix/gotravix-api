@@ -4,8 +4,8 @@
   "main": "app.ts",
   "scripts": {
     "dev": "tsx watch src/app.ts",
-    "build": "tsc",
-    "start": "node dist/app.js",
+    "build": "tsc && tsc-alias",
+    "start": "node ./dist/app.js",
     "db:push": "dotenv -e .env drizzle-kit push",
     "db:generate": "dotenv -e .env drizzle-kit generate",
     "db:seed": "tsx src/utils/scripts/seed.ts",
@@ -28,7 +28,6 @@
     "mongoose": "^8.9.7",
     "nodemailer": "^7.0.3",
     "pg": "^8.16.0",
-    "tsconfig-paths": "^4.2.0",
     "winston": "^3.17.0",
     "zod": "^3.25.51"
   },
@@ -46,6 +45,7 @@
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
+    "tsc-alias": "^1.8.16",
     "tsx": "^4.19.4",
     "typescript": "^5.7.3",
     "yargs": "^18.0.0"
