@@ -117,7 +117,7 @@ export default async function seed(args: Args = getArgs()) {
       await addUsers()
     }
 
-    logger.info([
+    console.log([
       'Inserted the following records:',
       `${padEmoji('🕵️')}(guests): ${insertionCounter.guests}`,
       `${padEmoji('🤕')}(patients): ${insertionCounter.patients}`,
@@ -125,7 +125,7 @@ export default async function seed(args: Args = getArgs()) {
       `${padEmoji('👨‍⚖')}(lawyers): ${(insertionCounter as any).lawyers as undefined ?? 0}`,
     ].join('\n'));
 
-    logger.info(chalk.green("🌱 Seeding completed!"));
+    console.log(chalk.green("🌱 Seeding completed!"));
 
     pool.end()
 
