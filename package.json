@@ -29,6 +29,7 @@
     "nodemailer": "^7.0.3",
     "pg": "^8.16.0",
     "winston": "^3.17.0",
+    "yargs": "^18.0.0",
     "zod": "^3.25.51"
   },
   "devDependencies": {
@@ -39,7 +40,6 @@
     "@types/nodemailer": "^6.4.17",
     "@types/pg": "^8.15.4",
     "@types/yargs": "^17.0.33",
-    "add": "^2.0.6",
     "dotenv-cli": "^8.0.0",
     "drizzle-kit": "^0.31.1",
     "nodemon": "^3.1.9",
@@ -47,7 +47,6 @@
     "ts-node-dev": "^2.0.0",
     "tsc-alias": "^1.8.16",
     "tsx": "^4.19.4",
-    "typescript": "^5.7.3",
-    "yargs": "^18.0.0"
+    "typescript": "^5.7.3"
   }
 }
