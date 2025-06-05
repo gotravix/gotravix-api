@@ -117,8 +117,12 @@
     }
 
   },
+  "include": [
+    "src/**/*"
+  ],
   "exclude": [
     "node_modules",
-    "drizzle.config.ts"
+    "drizzle.config.ts",
+    "migrations"
   ]
 }
