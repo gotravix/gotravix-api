@@ -1,8 +1,8 @@
-import { createPatientEndpoint, getPatient, updatePatientEndpoint, deletePatientEndpoint } from "../controllers/patientController";
-import { validateJWT } from "../middlewares/validateJwt";
-import { validatePatientFields } from "../middlewares/validatePatientFields";
-import { validateRolePatient } from "../middlewares/validateRolePatient";
-import { validatePatientUserId } from "../middlewares/validatePatientUserId";
+import { createPatientEndpoint, getPatient, updatePatientEndpoint, deletePatientEndpoint } from "@controllers/patientController";
+import { validateJWT } from "@middlewares/validateJwt";
+import { validatePatientFields } from "@middlewares/validatePatientFields";
+import { validateRolePatient } from "@middlewares/validateRolePatient";
+import { validatePatientUserId } from "@middlewares/validatePatientUserId";
 const { Router } = require('express');
 const router = Router();
 

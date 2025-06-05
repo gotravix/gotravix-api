@@ -48,9 +48,9 @@ class Server {
     }
 
     routes() {
-        this.app.use(this.paths.auth, require('../routes/authRoutes'));
-        this.app.use(this.paths.users, require('../routes/usersRoutes'));
-        this.app.use(this.paths.patients, require('../routes/patientRoutes'));
+        this.app.use(this.paths.auth, require('@/routes/authRoutes'));
+        this.app.use(this.paths.users, require('@/routes/usersRoutes'));
+        this.app.use(this.paths.patients, require('@/routes/patientRoutes'));
     }
 
 
