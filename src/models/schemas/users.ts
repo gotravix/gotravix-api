@@ -10,7 +10,7 @@ export const usersSchema = table('users', {
             .unique(),
     username: varchar('username', { length: 64 }),
     password: varchar('password', { length: 255 }).notNull(),
-    role: userRole("role").default("guest"),
+    role: userRole("role"),
     active: boolean('active')
             .notNull()
             .default(false),
