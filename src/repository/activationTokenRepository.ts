@@ -1,5 +1,5 @@
-import { db } from '../config/db';
-import { activationTokens, ActivationToken, NewActivationToken } from '../models/schemas/activationToken';
+import { db } from '@/config/db';
+import { activationTokens, ActivationToken, NewActivationToken } from '@/models/schemas/activationToken';
 import { eq } from 'drizzle-orm';
 
 export const createActivationToken = async (data: NewActivationToken): Promise<ActivationToken> => {

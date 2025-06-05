@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from '../constants/env';
+import { JWT_SECRET } from '@/constants/env';
 
 interface Payload {
   id: string;

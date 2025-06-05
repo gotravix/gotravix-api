@@ -1,6 +1,6 @@
 import validateSchema, { validateSchemaMw } from "@/middlewares/validateSchema";
-import { createUsers, getUsers, updateUsers } from "../controllers/usersControllers";
-import { validateJWT } from "../middlewares/validateJwt";
+import { createUsers, getUsers, updateUsers } from "@/controllers/usersControllers";
+import { validateJWT } from "@/middlewares/validateJwt";
 import { createUserValidation, updateUserQueryValidation, updateUserValidation } from "@/validations/users";
 
 

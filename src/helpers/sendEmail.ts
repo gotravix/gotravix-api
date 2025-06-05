@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM } from "../constants/env";
+import { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM } from "@/constants/env";
 
 // Configura aquí tu transporte SMTP (puedes usar Mailtrap, Gmail, etc.)
 const transporter = nodemailer.createTransport({
