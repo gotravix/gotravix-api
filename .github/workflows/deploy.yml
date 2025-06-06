@@ -30,9 +30,9 @@ jobs:
       - name: Copy Docker image and compose files to remote server
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.REMOTE_HOST }}
-          username: ${{ secrets.REMOTE_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
           source: |
             gotravix-api.tar
             docker/docker-compose-prod.yml
@@ -43,9 +43,9 @@ jobs:
       - name: Deploy on remote server via SSH
         uses: appleboy/ssh-action@v1.2.0
         with:
-          host: ${{ secrets.REMOTE_HOST }}
-          username: ${{ secrets.REMOTE_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd ~/gotravix-deploy
             docker load -i gotravix-api.tar
@@ -55,9 +55,9 @@ jobs:
       - name: Verify deployment (temporary)
         uses: appleboy/ssh-action@v1.2.0
         with:
-          host: ${{ secrets.REMOTE_HOST }}
-          username: ${{ secrets.REMOTE_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             docker ps
             curl -I http://localhost:3000
