@@ -26,12 +26,9 @@ jobs:
 
       - name: Save Docker image to file
         run: docker save gotravix-api:latest -o gotravix-api.tar
+
       
-      - name: Install tree to see dir hierarchy
-        run: sudo apt update && sudo apt-get install -y tree
       
-      - name: See directory structure
-        run: tree .
 
       - name: Copy Docker image and compose files to remote server
         uses: appleboy/scp-action@v0.1.7
@@ -39,10 +36,10 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: |
-            gotravix-api.tar
-            docker/docker-compose-prod.yml
-            docker/nginx/nginx.conf
+          source: >-
+            gotravix-api.tar,
+            docker/docker-compose-prod.yml,
+            docker/nginx/nginx.conf,
             docker/certbot/
           target: "~/gotravix-deploy"
 
