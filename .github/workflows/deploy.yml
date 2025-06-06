@@ -28,7 +28,7 @@ jobs:
         run: docker save gotravix-api:latest -o gotravix-api.tar
       
       - name: Install tree to see dir hierarchy
-        run: sudo apt update && apt-get install -y tree
+        run: sudo apt update && sudo apt-get install -y tree
       
       - name: See directory structure
         run: tree .
