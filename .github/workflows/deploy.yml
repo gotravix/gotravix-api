@@ -3,7 +3,7 @@ name: "Build, Test, and Deploy"
 on:
   push:
     branches:
-      - main
+      - arturo_dev
 
 jobs:
   build-test-deploy:
@@ -19,22 +19,26 @@ jobs:
           node-version: '22'
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --prod
 
       - name: Build Docker image
-        run: docker build -t my-express-app:latest .
+        run: docker build -t gotravix-api:latest .
 
       - name: Save Docker image to file
-        run: docker save my-express-app:latest -o my-express-app.tar
+        run: docker save gotravix-api:latest -o gotravix-api.tar
 
-      - name: Copy image to remote server via SCP
+      - name: Copy Docker image and compose files to remote server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "my-express-app.tar"
-          target: "~/"
+          source: |
+            gotravix-api.tar
+            docker/docker-compose-prod.yml
+            docker/nginx/nginx.conf
+            docker/certbot/
+          target: "~/gotravix-deploy"
 
       - name: Deploy on remote server via SSH
         uses: appleboy/ssh-action@v1.2.0
@@ -43,7 +47,17 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            docker load -i ~/my-express-app.tar
-            docker stop my-express-app || true
-            docker rm my-express-app || true
-            docker run -d --name my-express-app -p 3000:3000 my-express-app:latest
+            cd ~/gotravix-deploy
+            docker load -i gotravix-api.tar
+            docker compose -f docker/docker-compose-prod.yml down || true
+            docker compose -f docker/docker-compose-prod.yml up -d --remove-orphans
+
+      - name: Verify deployment (temporary)
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker ps
+            curl -I http://localhost:3000

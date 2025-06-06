@@ -10,12 +10,12 @@ services:
     networks:
       - gotravix
 
-  # gotravix-api:
-  #   image: gotravix-api:latest
-  #   ports:
-  #     - 443:443
-  #   networks:
-  #     - gotravix
+  gotravix-api:
+    image: gotravix-api:latest
+    ports:
+      - 3000:3000
+    networks:
+      - gotravix
 
   nginx:
     image: nginx:latest
