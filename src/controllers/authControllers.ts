@@ -9,6 +9,8 @@ import { getPatientByUserId } from '@/repository/patientRepository';
 import { getClinicByUserId } from '@/repository/clinicRepository';
 import { getEmptyPatient, getEmptyClinic } from '@/utils/emptySchemas';
 import { sendEmail } from "@helpers/sendEmail";
+import { APP_ORIGIN } from "@/constants/env";
+import { buildUserData } from "@/utils/buildUserData";
 
 export const registrer = async (req: Request, res: Response) => {
   try {
@@ -43,8 +45,7 @@ export const registrer = async (req: Request, res: Response) => {
     });
 
     // Enviar email con la URL de activación
-    const serverUrl = req.protocol + '://' + req.get('host');
-    const activationUrl = `${serverUrl}/activate?token=${token}`;
+    const activationUrl = `${APP_ORIGIN}/activate?token=${token}`;
     await sendEmail(
       email,
       "Activa tu cuenta en GoTravix",
@@ -68,54 +69,33 @@ export const registrer = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-
   try {
     // Buscar al usuario por email (incluyendo contraseña)
     const usuario = await getUserByEmail(email, true) as any; // true: incluir contraseña
-
     if (!usuario) {
       return res.status(400).json({
         ok: false,
         message: '❌ Incorrect username or password',
       });
     }
-
     // Verificar si la contraseña es correcta
     const validPassword = await bcrypt.compare(password, usuario.password);
-
     if (!validPassword) {
       return res.status(400).json({
         ok: false,
         message: '❌ Incorrect username or password',
       });
     }
-
-    // Consultar datos asociados según el rol
-    let userData: any = {
-      id: usuario.id,
-      email: usuario.email,
-      username: usuario.username,
-      role: usuario.role,
-      wizard: usuario.wizard,
-    };
-    if (usuario.role === 'patient') {
-      const patient = await getPatientByUserId(usuario.id);
-      userData = { ...userData, ...(patient ? patient : getEmptyPatient(usuario.id)) };
-    } else if (usuario.role === 'clinic') {
-      const clinic = await getClinicByUserId(usuario.id);
-      userData = { ...userData, ...(clinic ? clinic : getEmptyClinic(usuario.id)) };
-    }
-
+    // Consultar datos asociados según el rol (reutilizable)
+    const userData = await buildUserData(usuario);
     // Generar JWT
     const token = await generarJWT(usuario.id.toString(), usuario.email, usuario.email);
-
     res.status(200).json({
       ok: true,
       message: '✅ Login successful',
       token,
       user: userData,
     });
-
   } catch (error) {
     console.error(error);
     return res.status(500).json({
@@ -153,7 +133,7 @@ export const activateUser = async (req: Request, res: Response) => {
         expires_at: expiresAt,
       });
       // Reenviar email
-      const activationUrl = `${process.env.APP_ORIGIN}/activate?token=${newToken}`;
+      const activationUrl = `${APP_ORIGIN}/activate?token=${newToken}`;
       await sendEmail(
         user.email,
         "Activate your GoTravix account",
@@ -168,30 +148,13 @@ export const activateUser = async (req: Request, res: Response) => {
     const user = await updateUser(activationToken.user_id, { active: true });
     // Borrar el token
     await deleteActivationToken(token);
-
     if (!user) {
       return res.status(404).json({ ok: false, message: "❌ User not found after activation" });
     }
-
-    // Consultar datos asociados según el rol para la respuesta
-    let userData: any = {
-      id: user.id,
-      email: user.email,
-      username: user.username,
-      role: user.role,
-      wizard: user.wizard,
-    };
-    if (user.role === 'patient') {
-      const patient = await getPatientByUserId(user.id);
-      userData = { ...userData, ...(patient ? patient : getEmptyPatient(user.id)) };
-    } else if (user.role === 'clinic') {
-      const clinic = await getClinicByUserId(user.id);
-      userData = { ...userData, ...(clinic ? clinic : getEmptyClinic(user.id)) };
-    }
-
+    // Consultar datos asociados según el rol para la respuesta (reutilizable)
+    const userData = await buildUserData(user);
     // Generar JWT para el usuario activado
     const tokenJwt = await generarJWT(user.id.toString(), user.email, user.email);
-
     return res.status(200).json({
       ok: true,
       message: "✅ Account activated successfully!",

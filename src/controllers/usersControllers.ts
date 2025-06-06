@@ -1,17 +1,20 @@
 import { Request, Response } from "express";
-import { createUser, getAllUsers, updateUser } from '@repository/userRepository';
-import z from "zod";
+import {  getUserById } from '@repository/userRepository';
 
+import { buildUserDataFull } from "@/utils/buildUserData";
 
-export const getUsers = async (req: Request, res: Response) => {
+export const getUser = async (req: Request, res: Response) => {
   try {
-    // Obtener todos los usuarios excluyendo la contraseña
-    const usuarios = await getAllUsers();
-    const usuariosSinPassword = usuarios.map(({ password, ...rest }) => rest);
-    res.status(200).json({
+    const { id } = req.params;
+    const user = await getUserById(Number(id));
+    if (!user) {
+      return res.status(404).json({ ok: false, message: "User not found" });
+    }
+    const userData = await buildUserDataFull(user);
+    return res.status(200).json({
       ok: true,
-      message: '📋 Users retrieved successfully',
-      usuarios: usuariosSinPassword,
+      message: "✅ User retrieved successfully",
+      user: userData
     });
   } catch (error) {
     console.error(error);
