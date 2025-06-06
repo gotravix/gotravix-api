@@ -26,8 +26,13 @@ jobs:
 
       - name: Save Docker image to file
         run: docker save gotravix-api:latest -o gotravix-api.tar
-
       
+
+      - name: List files
+        run: ls -la
+      
+      - name: whoami
+        run: whoami
       
 
       - name: Copy Docker image and compose files to remote server
