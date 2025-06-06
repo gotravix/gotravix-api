@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - arturo_dev
+  
 
 jobs:
   build-test-deploy:
@@ -29,11 +30,7 @@ jobs:
         run: |
           docker save gotravix-api:latest -o gotravix-api.tar;
           chmod 666 gotravix-api.tar
-      
-      - name: List Environment Variables
-        run: printenv
-      
-      
+     
       - name: Copy Docker image and compose files to remote server
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -54,10 +51,11 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd ~/gotravix-deploy
-            docker load -i gotravix-api.tar
-            docker compose -f docker/docker-compose-prod.yml down || true
-            docker compose -f docker/docker-compose-prod.yml up -d --remove-orphans
+            sudo docker load -i gotravix-api.tar;
+            echo "Listing docker available docker images";
+            sudo docker images;
+            sudo docker compose -f docker/docker-compose-prod.yml down || true;
+            sudo docker compose -f docker/docker-compose-prod.yml up -d --remove-orphans;
 
       - name: Verify deployment (temporary)
         uses: appleboy/ssh-action@v1.2.0
