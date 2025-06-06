@@ -40,7 +40,7 @@ export function getArgs(): Args {
 }
 
 export default async function seed(args: Args = getArgs()) {
-    const roles = ['clinic', 'patient', 'guest'] as const;
+    const roles = ['clinic', 'patient', null] as const;
     const insertionCounter = {
       guests: 0,
       patients: 0,
