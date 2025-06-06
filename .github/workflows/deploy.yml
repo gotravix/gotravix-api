@@ -19,14 +19,6 @@ jobs:
         with:
           node-version: '22'
       
-      - name: Change umask
-        run : |
-          umask;
-          umask 0000;
-          umask;
-          
-
-
       - name: Install dependencies
         run: npm install --prod
 
@@ -34,16 +26,13 @@ jobs:
         run: docker build -t gotravix-api:latest .
 
       - name: Save Docker image to file
-        run: docker save gotravix-api:latest -o gotravix-api.tar
+        run: |
+          docker save gotravix-api:latest -o gotravix-api.tar;
+          chmod 666 gotravix-api.tar
       
-
       - name: List files
         run: ls -la
       
-      - name: whoami
-        run: whoami
-      
-
       - name: Copy Docker image and compose files to remote server
         uses: appleboy/scp-action@v0.1.7
         with:
