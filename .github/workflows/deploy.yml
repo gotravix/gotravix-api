@@ -30,8 +30,9 @@ jobs:
           docker save gotravix-api:latest -o gotravix-api.tar;
           chmod 666 gotravix-api.tar
       
-      - name: List files
-        run: ls -la
+      - name: List Environment Variables
+        run: printenv
+      
       
       - name: Copy Docker image and compose files to remote server
         uses: appleboy/scp-action@v0.1.7
