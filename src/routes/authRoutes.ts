@@ -3,7 +3,6 @@ import { validateUniqueEmail } from "../middlewares/auth/validateUniqueEmail";
 import { validateUserIsActive } from "../middlewares/auth/validateUserIsActive";
 import { validateSchemaMw } from "../middlewares/users/validateSchema";
 import { activateValidation, loginValidation, registerValidation } from "@/validations/auth";
-import z from "zod";
 
 
 
