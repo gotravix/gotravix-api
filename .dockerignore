@@ -5,3 +5,5 @@ node_modules/
 migrations/
 .github/
 Dockerfile
+docker/
+docker-compose*.yml
