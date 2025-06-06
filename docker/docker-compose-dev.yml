@@ -29,16 +29,6 @@ services:
   #   networks:
   #     - gotravix
 
-  nginx:
-    image: nginx:latest
-    ports:
-      - 443:443
-    volumes:
-      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
-    networks:
-      - gotravix
-    
-
 volumes:
   pgadmin_data:
     driver: local
