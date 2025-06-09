@@ -13,5 +13,3 @@ build/
 # No ignorar migrations (Drizzle)
 # migrations/
 .vscode/
-
-migrations/
