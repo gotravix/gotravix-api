@@ -4,20 +4,62 @@ services:
     ports:
       - 5432:5432
     environment:
-      - POSTGRES_USER=gotravix
-      - POSTGRES_PASSWORD=testing123
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB_DATA=/var/lib/postgresql/data
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - gotravix
+
+  db-migrator:
+    image: gotravix-migrator:latest
+    ports:
+      - 8089:${MIGRATOR_PORT:-80}
+    depends_on:
+      - db
+    networks:
+      - gotravix
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - MIGRATOR_PORT=${MIGRATOR_PORT:-80}
+
 
   gotravix-api:
     image: gotravix-api:latest
     depends_on:
       - db
+      - db-migrator
     ports:
       - 3000:3000
     networks:
       - gotravix
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - APP_ORIGIN=${APP_ORIGIN}
+      - APP_PORT=${APP_PORT}
+      - JWT_SECRET=${JWT_SECRET:-myjsonwebtokensecret}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-myjsonwebtokensecretrefresh}
+      - DATABASE_URL=${DATABASE_URL}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER} 
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - SMTP_FROM=${SMTP_FROM}
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER-admin}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - MIGRATOR_HOST=${MIGRATOR_HOST:-migrator}
+      - MIGRATOR_PORT=${MIGRATOR_PORT:-80}
+      - MIGRATOR_TIMEOUT=${MIGRATOR_TIMEOUT:-30}
+      - MIGRATOR_WAIT_INTERVAL=${MIGRATOR_WAIT_INTERVAL:-5}
+      - MIGRATOR_STATUS_URL=${MIGRATOR_STATUS_URL:-"http://${MIGRATOR_HOST}:${MIGRATOR_PORT}/state"}
+    command: |
+      sh -c "wait-for-it.sh && npm run start"
 
   nginx:
     image: nginx:latest
@@ -66,6 +108,8 @@ services:
 
 volumes:
   pgadmin_data:
+    driver: local
+  postgres_data:
     driver: local
 
 networks:
