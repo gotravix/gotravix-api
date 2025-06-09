@@ -1,24 +1,16 @@
-import { BuildSchema, createSchemaFactory } from "drizzle-zod";
-import {
-    usersSchema,
-    clinicsSchema,
-    patientsSchema,
-} from "@schemas/users";
-import z from "zod"
-import validateSchemaMw from "@/middlewares/validateSchema";
-import { ZodTypeAny } from "zod";
-import { createUser } from "@/repository/userRepository";
+import { createSchemaFactory } from "drizzle-zod";
+import { usersSchema } from "@schemas/users";
+import z from "zod";
 
-const { 
-    createInsertSchema,
-    createUpdateSchema,
-    createSelectSchema,
-} = createSchemaFactory()
+const { createInsertSchema, createUpdateSchema, createSelectSchema } =
+  createSchemaFactory();
 
 export const createUserValidation = createInsertSchema(usersSchema);
 export const updateUserValidation = createUpdateSchema(usersSchema);
 export const selectUserValidation = createSelectSchema(usersSchema);
 
-export const updateUserQueryValidation = z.object({
-    userId: z.coerce.string(),
-})
+export const UserIdValidation = z.object({
+  id: z.string({ required_error: "User ID is required" })
+    .min(1, { message: "User ID is required" })
+    .regex(/^\d+$/, { message: "User ID must be a numeric string" })
+});

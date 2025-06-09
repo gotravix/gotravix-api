@@ -1,7 +1,8 @@
-import validateSchema, { validateSchemaMw } from "@/middlewares/validateSchema";
-import { createUsers, getUsers, updateUsers } from "@/controllers/usersControllers";
-import { validateJWT } from "@/middlewares/validateJwt";
-import { createUserValidation, updateUserQueryValidation, updateUserValidation } from "@/validations/users";
+import validateSchema from "@/middlewares/users/validateSchema";
+import { createUsers, getUser, updateUsers } from "@/controllers/usersControllers";
+import { validateJWT } from "@/middlewares/auth/validateJwt";
+import { createUserValidation, UserIdValidation } from "@/validations/users";
+import { ensureOwnUser } from "@/middlewares/users/ensureOwnUser";
 
 
 
@@ -11,21 +12,22 @@ const router = Router();
 
 const req = require('express/lib/request');
 
-router.get('/all',[ validateJWT], getUsers);
+
+router.get('/:id', [validateSchema(UserIdValidation, "params"), validateJWT, ensureOwnUser], getUser);
 
 router.post(
-    "",
+    "/new",
     [
-        validateSchema(createUserValidation, "body"),
+        validateSchema(createUserValidation, "params"),
     ],
     createUsers
 )
 
 router.put(
-    "", 
+    "/update/:id", 
     [
-        validateSchema(updateUserValidation, "query"),
-        validateSchema(updateUserQueryValidation, "body"),
+        validateSchema(UserIdValidation, "query"),
+        validateSchema(UserIdValidation, "body"),
     ], 
     updateUsers,
 )
