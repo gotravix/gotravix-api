@@ -28,7 +28,9 @@ jobs:
             git clone --branch ${{github.ref_name}} --depth 1 "${{github.server_url}}/${{github.repository}}.git";
             cd "$REPO_NAME";
             git checkout "${{github.ref_name}}";
+            echo "Dropping old containers ...";
             sudo docker-compose -f docker/docker-compose-prod.yml down gotravix-api db-migrator --remove-orphans;
+            echo "Rebuilding and deploying containers ...";
             sudo docker-compose --env-file ../env/${REPO_NAME}/.env -f docker/docker-compose-prod.yml up -d --build gotravix-api;
           END
 
