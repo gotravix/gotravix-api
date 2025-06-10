@@ -24,7 +24,7 @@ jobs:
         run: |
           echo  "${VPS_KEY}" > private.key && chmod 600 private.key;
           echo "REPO_NAME=$REPO_NAME"
-          ssh -v -i private.key -o StrictHostKeyChecking=no "${VPS_USER}"@"${VPS_HOST}" <<"END"
+          ssh -i private.key -o StrictHostKeyChecking=no "${VPS_USER}"@"${VPS_HOST}" <<END
             echo "The REPO NAME IS........ => $REPO_NAME";
             rm -rf "$REPO_NAME";
             git clone --branch main --depth 1 "${{github.server_url}}/${{github.repository}}.git";
