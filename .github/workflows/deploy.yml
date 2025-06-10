@@ -25,7 +25,7 @@ jobs:
           echo  "${VPS_KEY}" > private.key && chmod 600 private.key;
           ssh -i private.key -o StrictHostKeyChecking=no "${VPS_USER}"@"${VPS_HOST}" <<END
             rm -rf "$REPO_NAME";
-            git clone --branch main --depth 1 "${{github.server_url}}/${{github.repository}}.git";
+            git clone --branch ${{github.ref_name}} --depth 1 "${{github.server_url}}/${{github.repository}}.git";
             cd "$REPO_NAME";
             git checkout "${{github.ref_name}}";
             sudo docker-compose -f docker/docker-compose-prod.yml down gotravix-api db-migrator --remove-orphans;
