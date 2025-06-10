@@ -22,11 +22,11 @@ jobs:
           VPS_USER: "${{secrets.VPS_USER}}"
           VPS_HOST: "${{secrets.VPS_HOST}}"
         run: |
-          echo -n "${VPS_KEY}" > private.key;
+          echo  "${VPS_KEY}" > private.key;
           echo "$VPS_KEY"
           wc -m private.key | tr -s ' ' | cut -d ' ' -f1; 
           chmod 600 private.key;
-          ssh -i private.key -o StrictHostKeyChecking=no "${VPS_USER}"@"${VPS_HOST}" <<"END"
+          ssh -vvv -i private.key -o StrictHostKeyChecking=no "${VPS_USER}"@"${VPS_HOST}" <<"END"
             rm -rf ${REPO_NAME};
             git clone --branch main --depth 1 "${{github.server_url}}/${{github.repository}}.git";
             cd ${REPO_NAME};
