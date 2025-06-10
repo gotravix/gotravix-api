@@ -23,7 +23,7 @@ jobs:
           VPS_HOST: "${{secrets.VPS_HOST}}"
         run: |
           echo "${VPS_KEY}" > private.key;
-          cat private.key;
+          echo -e "This is the key:\n$(cat private.key)";
           chmod 600 private.key;
           ssh -i private.key -o StrictHostKeyChecking=no "${VPS_USER}"@"${VPS_HOST}" <<"END"
             rm -rf ${REPO_NAME};
