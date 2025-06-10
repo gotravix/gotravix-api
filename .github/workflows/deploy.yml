@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      # - name: Checkout code
+      #   uses: actions/checkout@v4
       - name: Get repo name
         run: |
           echo "REPO_NAME=$(basename ${{github.repository}})" >> $GITHUB_ENV
@@ -33,7 +33,9 @@ jobs:
             git checkout ${{github.ref_name}};
             sudo docker-compose -f docker/docker-compose-prod.yml down gotravix-api db-migrator --remove-orphans;
             sudo docker-compose --env-file ../env/${REPO_NAME}/.env -f docker/docker-compose-prod.yml up -d --build gotravix-api;
-          END;
+          END
+
+
         shell: bash
     
 
