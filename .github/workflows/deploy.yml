@@ -23,6 +23,7 @@ jobs:
           VPS_HOST: "${{secrets.VPS_HOST}}"
         run: |
           echo  "${VPS_KEY}" > private.key && chmod 600 private.key;
+          echo "REPO_NAME=$REPO_NAME"
           ssh -vvv -i private.key -o StrictHostKeyChecking=no "${VPS_USER}"@"${VPS_HOST}" <<"END"
             ls -la;
             echo "The REPO NAME IS........ => $REPO_NAME";
