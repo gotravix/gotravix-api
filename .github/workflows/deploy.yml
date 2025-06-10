@@ -3,6 +3,7 @@ name: "Build, Test, and Deploy"
 on:
   push:
     branches:
+      # - main
       - arturo_dev
   
 
@@ -13,57 +14,24 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      
-      - name: Install dependencies
-        run: npm install --prod
-
-      - name: Build Docker image
-        run: docker build -t gotravix-api:latest .
-
-      - name: Save Docker image to file
+      - name: Get repo name
         run: |
-          docker save gotravix-api:latest -o gotravix-api.tar;
-          chmod 666 gotravix-api.tar
-     
-      - name: Copy Docker image and compose files to remote server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          source: >-
-            gotravix-api.tar,
-            docker/docker-compose-prod.yml,
-            docker/nginx/nginx.conf,
-            docker/certbot/
-          target: "~/gotravix-deploy"
+          echo "REPO_NAME=$(basename ${{github.repository}})" >> $GITHUB_ENV
+      - name: Fetch changes, build and deploy
+        run: |
+          echo -n "${{secrets.VPS_KEY}}" > private.key;
+          ssh -i private.key -o StrictHostKeyChecking=no "${{secrets.VPS_USER}}"@"${{secrets.VPS_HOST}}" <<"END"
+            rm -rf ${REPO_NAME};
+            git clone --branch main --depth 1 "${{github.server_url}}/${{github.repository}}.git";
+            cd ${REPO_NAME};
+            git checkout ${{github.ref_name}};
+            sudo docker-compose -f docker/docker-compose-prod.yml down gotravix-api db-migrator --remove-orphans;
+            sudo docker-compose --env-file ../env/${REPO_NAME}/.env -f docker/docker-compose-prod.yml up -d --build gotravix-api;
+          END;
+        shell: bash
+    
 
-      - name: Deploy on remote server via SSH
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            cd ~/gotravix-deploy;
-            sudo docker load -i gotravix-api.tar;
-            echo "Listing docker available docker images";
-            sudo docker images;
-            sudo docker compose -f docker/docker-compose-prod.yml down || true;
-            sudo docker compose -f docker/docker-compose-prod.yml up -d --remove-orphans;
 
-      - name: Verify deployment (temporary)
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            docker ps
-            curl -I http://localhost:3000
+
+
+
