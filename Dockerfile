@@ -1,5 +1,5 @@
 # ---- Build Stage ----
-FROM node:lts-alpine AS build
+FROM node:lts AS build
 
 WORKDIR /app
 
@@ -12,8 +12,8 @@ COPY . .
 RUN npm run build
 
 # ---- Production Stage ----
-FROM node:lts-alpine
-COPY docker/wait-for-it.sh /usr/local/bin/wait-for-it
+FROM node:lts AS production
+COPY docker/scripts/wait-for-it.sh /usr/local/bin/wait-for-it
 WORKDIR /app
 
 # Install only production dependencies
