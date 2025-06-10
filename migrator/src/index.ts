@@ -13,8 +13,8 @@ const envSchema = z.object({
         .default(3000),
     MIGRATOR_RETRIES: z.coerce
         .number()
-        .default(30),
-    MIGRATOR_RETRY_DELAY: z.coerce
+        .default(5),
+    MIGRATOR_WAIT_INTERVAL: z.coerce
         .number()
         .default(3),
     MIGRATOR_GRACE_PERIOD: z.coerce
@@ -27,15 +27,15 @@ const envSchema = z.object({
 const parsed = envSchema.parse(process.env);
 
 const {
-    MIGRATOR_PORT: port,
-    MIGRATOR_RETRY_DELAY: retryDelay,
-    MIGRATOR_GRACE_PERIOD: gracePeriod,
-    DATABASE_URL: dbUrl,
+    MIGRATOR_PORT,
+    MIGRATOR_WAIT_INTERVAL,
+    MIGRATOR_GRACE_PERIOD,
+    DATABASE_URL,
     MIGRATOR_SCHEMA_FILE,
 } = parsed;
 
 let {
-    MIGRATOR_RETRIES: retries
+    MIGRATOR_RETRIES
 } = parsed;
 
 type State = "pending" | "running" | "success" | "error";
@@ -47,10 +47,11 @@ let migrationState: State = "pending";
 let migrationError: string | null;
 
 async function waitForDb() {
-  const pool = new Pool({ connectionString: dbUrl });
-  console.log(`Querying at url: ${chalk.blueBright(dbUrl)}`);
+  const pool = new Pool({ connectionString: DATABASE_URL });
+  console.log(`Querying at url: ${chalk.blueBright(DATABASE_URL)}`);
 
-  while (retries > 0) {
+  let i = 0;
+  while (true) {
     try {
       await pool.query("SELECT 1");
       await pool.end();
@@ -58,19 +59,25 @@ async function waitForDb() {
       return;
     } catch (err) {
       console.log("⏳ Waiting for database...");
-      await new Promise((res) => setTimeout(res, retryDelay * 1000));
-      retries--;
+      await new Promise((res) => setTimeout(res, MIGRATOR_WAIT_INTERVAL * 1000));
     }
+
+    if (MIGRATOR_RETRIES != 0 && i >= MIGRATOR_RETRIES) {
+      console.error(`❌ Database not ready after ${MIGRATOR_RETRIES * MIGRATOR_WAIT_INTERVAL} seconds`);
+      throw new Error("Database not ready after retries");
+      
+    }
+
+    i++;
   }
-  throw new Error("❌ Database not ready after waiting");
 }
 
 function scheduleExit() {
-  console.log(`🕒 Grace period started. Migrator will exit in ${gracePeriod} seconds.`);
+  console.log(`🕒 Grace period started. Migrator will exit in ${MIGRATOR_GRACE_PERIOD} seconds.`);
   setTimeout(() => {
     console.log("👋 Migrator exiting after grace period.");
     process.exit(migrationState === "success" ? 0 : 1);
-  }, gracePeriod * 1000);
+  }, MIGRATOR_GRACE_PERIOD * 1000);
 }
 
 async function runMigration() {
@@ -83,7 +90,7 @@ async function runMigration() {
                 'npx drizzle-kit push',
                 '--force',
                 `--schema "${MIGRATOR_SCHEMA_FILE}"`,
-                `--url "${dbUrl}"`,
+                `--url "${DATABASE_URL}"`,
                 '--dialect postgresql',
             ].join(" "),
             (error, stdout, stderr) => {
@@ -135,7 +142,7 @@ const server = http.createServer((req, res) => {
   }
 });
 
-server.listen(port, () => {
-  console.log(`🚀  Migrator state server running on port ${port}`);
+server.listen(MIGRATOR_PORT, () => {
+  console.log(`🚀  Migrator state server running on port ${MIGRATOR_PORT}`);
   runMigration();
 });
