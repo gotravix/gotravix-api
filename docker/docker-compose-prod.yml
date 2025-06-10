@@ -18,7 +18,7 @@ services:
       - gotravix
 
   db-migrator:
-    image: gotravix-migrator:latest
+    image: gotravix-migrator:stable
     build: 
       context: ..
       dockerfile: migrator/Dockerfile
@@ -35,7 +35,7 @@ services:
 
 
   gotravix-api:
-    image: gotravix-api:latest
+    image: gotravix-api:stable
     build:
       context: ..
       dockerfile: Dockerfile
