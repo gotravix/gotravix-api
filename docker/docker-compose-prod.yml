@@ -7,6 +7,11 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB_DATA=/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -15,12 +20,13 @@ services:
   db-migrator:
     image: gotravix-migrator:latest
     build: 
-      context: .
+      context: ..
       dockerfile: migrator/Dockerfile
     ports:
       - 8089:${MIGRATOR_PORT:-80}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - gotravix
     environment:
@@ -31,11 +37,13 @@ services:
   gotravix-api:
     image: gotravix-api:latest
     build:
-      context: .
+      context: ..
       dockerfile: Dockerfile
     depends_on:
-      - db
-      - db-migrator
+      db:
+        condition: service_healthy
+      db-migrator:
+        condition: service_started
     ports:
       - 3000:3000
     networks:
