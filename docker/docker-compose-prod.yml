@@ -14,6 +14,9 @@ services:
 
   db-migrator:
     image: gotravix-migrator:latest
+    build: 
+      context: .
+      dockerfile: migrator/Dockerfile
     ports:
       - 8089:${MIGRATOR_PORT:-80}
     depends_on:
@@ -27,6 +30,9 @@ services:
 
   gotravix-api:
     image: gotravix-api:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     depends_on:
       - db
       - db-migrator
@@ -53,13 +59,13 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - MIGRATOR_HOST=${MIGRATOR_HOST:-migrator}
+      - MIGRATOR_HOSTNAME=${MIGRATOR_HOSTNAME:-migrator}
       - MIGRATOR_PORT=${MIGRATOR_PORT:-80}
       - MIGRATOR_TIMEOUT=${MIGRATOR_TIMEOUT:-30}
       - MIGRATOR_WAIT_INTERVAL=${MIGRATOR_WAIT_INTERVAL:-5}
-      - MIGRATOR_STATUS_URL=${MIGRATOR_STATUS_URL:-"http://${MIGRATOR_HOST}:${MIGRATOR_PORT}/state"}
+      - MIGRATOR_STATUS_URL=${MIGRATOR_STATUS_URL:-"http://${MIGRATOR_HOSTNAME}:${MIGRATOR_PORT}/state"}
     command: |
-      sh -c "wait-for-it.sh && npm run start"
+      sh -c "wait-for-it && npm run start"
 
   nginx:
     image: nginx:latest
