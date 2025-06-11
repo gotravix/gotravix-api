@@ -43,19 +43,6 @@ jobs:
               exit 1;
             fi
 
-            echo "Dropping old containers ...";
-            sudo docker compose -f docker/docker-compose-prod.yml -p gotravix down --remove-orphans backend db-migrator;
-
-            if [ $? -ne 0 ]; then
-              echo "Failed to stop old containers, exiting.";
-              exit 1;
-            fi
-
-            (
-              WAIT_TIME=8;
-              echo "Waiting \${WAIT_TIME}s before deploying for safety's sake" && sleep \$WAIT_TIME;
-            );
-
             echo "Deploying new containers...";
             sudo docker compose --env-file .env -p gotravix -f docker/docker-compose-prod.yml up -d backend db-migrator;
 
