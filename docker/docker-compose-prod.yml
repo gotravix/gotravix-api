@@ -51,7 +51,7 @@ services:
       - minio_data:/data
 
 
-  gotravix-api:
+  backend:
     image: gotravix-api:stable
     build:
       context: ..
