@@ -25,7 +25,7 @@ jobs:
             set -x
 
             TEMP_DIR='$(mktemp -d)'
-            echo "TEMP_DIR after assignment: \$TEMP_DIR"
+            echo "TEMP_DIR after assignment: $TEMP_DIR"
             set | grep TEMP_DIR
             cd "$TEMP_DIR"
             echo "PWD after cd: $(pwd)"
