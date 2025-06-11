@@ -24,12 +24,13 @@ jobs:
           ssh -i private.key -o StrictHostKeyChecking=no "${VPS_USER}"@"${VPS_HOST}" <<END
             set -x
             echo "Making temporary directory...";
-            TEMP_DIR=$(mktemp);
+            TEMP_DIR=$(mktemp -d);
             cd "$TEMP_DIR";
             echo "Entered temporary directory: $TEMP_DIR";
             git clone --branch ${{github.ref_name}} --depth 1 "${{github.server_url}}/${{github.repository}}.git";
             cd "$REPO_NAME";
             git checkout "${{github.ref_name}}";
+            find . -name '*.sh' -type f -exec chmod u+x {} \;
             cp ~/env/${REPO_NAME}/.env .env;
             echo "Copied envars"
             
@@ -69,7 +70,8 @@ jobs:
             fi
 
             echo "Successfully deployed ${REPO_NAME} on branch ${{github.ref_name}}";
-            cp -rf . ~/"${REPO_NAME}";
+            rm -rf ~/"${REPO_NAME}";
+            cp -r . ~/"${REPO_NAME}";
             echo "Moved new repo to home directory";
             cd ~/"${REPO_NAME}";
             echo "Cleaning up temporary directory...";
