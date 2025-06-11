@@ -52,7 +52,7 @@ jobs:
             fi
 
             (
-              WAIT_TIME=2;
+              WAIT_TIME=8;
               echo "Waiting \${WAIT_TIME}s before deploying for safety's sake" && sleep \$WAIT_TIME;
             );
 
