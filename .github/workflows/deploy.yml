@@ -20,15 +20,17 @@ jobs:
           VPS_USER: "${{secrets.VPS_USER}}"
           VPS_HOST: "${{secrets.VPS_HOST}}"
         run: |
-          TEMP_DIR=$(mktemp -d)
-          echo "TEMP_DIR after assignment: $TEMP_DIR"
-          set | grep TEMP_DIR
-          cd "$TEMP_DIR"
-          echo "PWD after cd: $(pwd)"
+          echo  "${VPS_KEY}" > private.key && chmod 600 private.key;
+          ssh -i private.key -o StrictHostKeyChecking=no "${VPS_USER}"@"${VPS_HOST}" <<END
+            set -x
 
-          # echo  "${VPS_KEY}" > private.key && chmod 600 private.key;
-          # ssh -i private.key -o StrictHostKeyChecking=no "${VPS_USER}"@"${VPS_HOST}" <<END
-          #   set -x
+            TEMP_DIR=$(mktemp -d)
+            echo "TEMP_DIR after assignment: $TEMP_DIR"
+            set | grep TEMP_DIR
+            cd "$TEMP_DIR"
+            echo "PWD after cd: $(pwd)"
+
+
           #   echo "Making temporary directory...";
           #   TEMP_DIR=$(mktemp -d);
           #   echo "Getting TEMP_DIR value with the \$ symbol => ${TEMP_DIR}";
@@ -91,7 +93,7 @@ jobs:
           #   echo "Cleaning up temporary directory...";
           #   rm -rf "$TEMP_DIR";
           #   echo "Done!";
-          # END
+          END
 
 
         shell: bash
