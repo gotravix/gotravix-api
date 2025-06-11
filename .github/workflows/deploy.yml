@@ -21,11 +21,11 @@ jobs:
           VPS_HOST: "${{secrets.VPS_HOST}}"
         run: |
           echo  "${VPS_KEY}" > private.key && chmod 600 private.key;
-          ssh -i private.key -o StrictHostKeyChecking=no "${VPS_USER}"@"${VPS_HOST}" <<END
+          ssh -i private.key -o StrictHostKeyChecking=no "${VPS_USER}"@"${VPS_HOST}" bash -s <<END
             set -x
 
-            TEMP_DIR=$(mktemp -d)
-            echo "TEMP_DIR after assignment: $TEMP_DIR"
+            TEMP_DIR='$(mktemp -d)'
+            echo "TEMP_DIR after assignment: \$TEMP_DIR"
             set | grep TEMP_DIR
             cd "$TEMP_DIR"
             echo "PWD after cd: $(pwd)"
