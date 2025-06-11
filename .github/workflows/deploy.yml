@@ -23,76 +23,65 @@ jobs:
           echo  "${VPS_KEY}" > private.key && chmod 600 private.key;
           ssh -i private.key -o StrictHostKeyChecking=no "${VPS_USER}"@"${VPS_HOST}" bash -s <<END
             set -x
-
-            TEMP_DIR='$(mktemp -d)'
-            echo "TEMP_DIR after assignment: $TEMP_DIR"
-            set | grep TEMP_DIR
-            cd "$TEMP_DIR"
-            echo "PWD after cd: $(pwd)"
-
-
-          #   echo "Making temporary directory...";
-          #   TEMP_DIR=$(mktemp -d);
-          #   echo "Getting TEMP_DIR value with the \$ symbol => ${TEMP_DIR}";
-          #   echo "Getting TEMP_DIR value with grep command => $(set | grep -E '^TEMP_DIR=' | cut -d '=' -f2)";
-          #   set;
-          #   cd "$TEMP_DIR";
-          #   echo "Entered temporary directory: $TEMP_DIR";
-          #   git clone --branch ${{github.ref_name}} --depth 1 "${{github.server_url}}/${{github.repository}}.git";
-          #   cd "$REPO_NAME";
-          #   git checkout "${{github.ref_name}}";
-          #   find . -name '*.sh' -type f -exec chmod u+x {} \;
-          #   cp ~/env/${REPO_NAME}/.env .env;
-          #   echo "Copied envars"
+            echo "Making temporary directory...";
+            TEMP_DIR='$(mktemp -d)';
+            cd "\$TEMP_DIR";
+            echo "Entered temporary directory: \$TEMP_DIR";
+            git clone --branch ${{github.ref_name}} --depth 1 "${{github.server_url}}/${{github.repository}}.git";
+            cd "$REPO_NAME";
+            git checkout "${{github.ref_name}}";
+            find . -name '*.sh' -type f -exec chmod u+x {} \;
+            cp ~/env/${REPO_NAME}/.env .env;
+            echo "Copied envars"
             
 
-          #   echo "Rebuilding images...";
-          #   sudo docker compose --env-file .env -f docker/docker-compose-prod.yml build;
+            echo "Rebuilding images...";
+            sudo docker compose --env-file .env -f docker/docker-compose-prod.yml build;
 
-          #   if [ $? -ne 0 ]; then
-          #     echo "Build failed, exiting.";
-          #     exit 1;
-          #   fi
+            if [ $? -ne 0 ]; then
+              echo "Build failed, exiting.";
+              exit 1;
+            fi
 
-          #   echo "Dropping old containers ...";
-          #   sudo docker compose -f docker/docker-compose-prod.yml down --remove-orphans gotravix-api db-migrator;
+            echo "Dropping old containers ...";
+            sudo docker compose -f docker/docker-compose-prod.yml down --remove-orphans gotravix-api db-migrator;
 
-          #   if [ $? -ne 0 ]; then
-          #     echo "Failed to stop old containers, exiting.";
-          #     exit 1;
-          #   fi
+            if [ $? -ne 0 ]; then
+              echo "Failed to stop old containers, exiting.";
+              exit 1;
+            fi
 
-          #   (
-          #     WAIT_TIME=2;
-          #     echo "Waiting ${WAIT_TIME}s before deploying for safety's sake" && sleep $WAIT_TIME;
-          #   );
+            (
+              WAIT_TIME=2;
+              echo "Waiting \${WAIT_TIME}s before deploying for safety's sake" && sleep \$WAIT_TIME;
+            );
 
-          #   echo "Deploying new containers...";
-          #   sudo docker compose --env-file .env -f docker/docker-compose-prod.yml up -d gotravix-api db-migrator;
+            echo "Deploying new containers...";
+            sudo docker compose --env-file .env -f docker/docker-compose-prod.yml up -d gotravix-api db-migrator;
 
-          #   if [ $? -ne 0 ]; then
-          #     echo "Deployment failed, rolling back!";
-          #     sudo docker compose -f docker/docker-compose-prod.yml down --remove-orphans gotravix-api db-migrator;
-          #     cd ~/"${REPO_NAME}";
-          #     sudo docker compose --env-file .env -f docker/docker-compose-prod.yml up -d gotravix-api db-migrator;
-          #     if [ $? -ne 0 ]; then
-          #       echo "Rollback failed, Admistrator needs to fix the issue!";
-          #       echo "Exiting"
-          #       exit 1;
-          #     fi
-          #     echo "Rollback successful!";
-          #     echo "Exiting"
-          #     exit 1;
-          #   fi
+            if [ $? -ne 0 ]; then
+              echo "Deployment failed, rolling back!";
+              sudo docker compose -f docker/docker-compose-prod.yml down --remove-orphans gotravix-api db-migrator;
+              cd ~/"${REPO_NAME}";
+              sudo docker compose --env-file .env -f docker/docker-compose-prod.yml up -d gotravix-api db-migrator;
+              if [ $? -ne 0 ]; then
+                echo "Rollback failed, Admistrator needs to fix the issue!";
+                echo "Exiting"
+                exit 1;
+              fi
+              echo "Rollback successful!";
+              echo "Exiting"
+              exit 1;
+            fi
 
-          #   echo "Successfully deployed ${REPO_NAME} on branch ${{github.ref_name}}";
-          #   rm -rf ~/"${REPO_NAME}";
-          #   cp -r . ~/"${REPO_NAME}";
-          #   echo "Moved new repo to home directory";
-          #   cd ~/"${REPO_NAME}";
-          #   echo "Cleaning up temporary directory...";
-          #   rm -rf "$TEMP_DIR";
-          #   echo "Done!";
+            echo "Successfully deployed ${REPO_NAME} on branch ${{github.ref_name}}";
+            rm -rf ~/"${REPO_NAME}";
+            cp -r . ~/"${REPO_NAME}";
+            echo "Moved new repo to home directory";
+            cd ~/"${REPO_NAME}";
+            echo "Cleaning up temporary directory...";
+            rm -rf "\$TEMP_DIR";
+            echo "Done!";
           END
 
 
