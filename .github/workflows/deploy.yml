@@ -51,7 +51,9 @@ jobs:
               exit 1;
             fi
 
-            echo "Deploying new containers ...";
+            WAIT_TIME=2 echo "Waiting ${WAIT_TIME}s before deploying for safety's sake" && sleep $WAIT_TIME
+
+            echo "Deploying new containers...";
             sudo docker compose --env-file .env -f docker/docker-compose-prod.yml up -d gotravix-api db-migrator;
 
             if [ $? -ne 0 ]; then
