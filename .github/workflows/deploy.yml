@@ -24,22 +24,35 @@ jobs:
           ssh -i private.key -o StrictHostKeyChecking=no "${VPS_USER}"@"${VPS_HOST}" bash -s <<END
 
             function cleanup {
-              echo "Starting cleanup !!";
-              rm -rf ~/"${REPO_NAME}";
-              cp -r . ~/"${REPO_NAME}";
-              echo "Moved new repo to home directory";
-              cd ~/"${REPO_NAME}";
+              echo "Starting cleanup!";
+              if [ \$SUCCESS ]; then
+                echo "Removing older snapshot with newer one...";
+                rm -rf ~/"$REPO_NAME";
+                mv -r "\$TEMP_DIR"/"$REPO_NAME" ~;
+                echo "Done!";
+              fi
               echo "Removing temporary directory...";
-              rm -rf "\$TEMP_DIR";
-              echo "Done!";
+              cd ~;
+              rm -fr "\$TEMP_DIR";
+              echo "Finished cleanup!";
             }
 
-            trap cleanup EXIT;
 
             set -x;
             TEMP_DIR=\$(mktemp -d);
+
+            if [ -z \$TEMP_DIR ]; then
+              echo "Failed to create temporary directory. Exiting!";
+              exit 1;
+            fi
+
+
             cd "\$TEMP_DIR";
+
             echo "Entered temporary directory: \$TEMP_DIR";
+
+            trap cleanup EXIT;
+
             git clone \
               --branch ${{github.ref_name}} \
               --depth 1 \
@@ -104,6 +117,8 @@ jobs:
               echo "Exiting";
               exit 1;
             fi
+            
+            SUCCESS=$(true);
             echo "Successfully deployed ${REPO_NAME} on branch ${{github.ref_name}}";
 
           END
