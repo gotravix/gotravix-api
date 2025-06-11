@@ -22,21 +22,40 @@ jobs:
         run: |
           echo  "${VPS_KEY}" > private.key && chmod 600 private.key;
           ssh -i private.key -o StrictHostKeyChecking=no "${VPS_USER}"@"${VPS_HOST}" bash -s <<END
-            set -x
-            echo "Making temporary directory...";
+
+            function cleanup {
+              echo "Starting cleanup !!";
+              rm -rf ~/"${REPO_NAME}";
+              cp -r . ~/"${REPO_NAME}";
+              echo "Moved new repo to home directory";
+              cd ~/"${REPO_NAME}";
+              echo "Removing temporary directory...";
+              rm -rf "\$TEMP_DIR";
+              echo "Done!";
+            }
+
+            trap cleanup EXIT;
+
+            set -x;
             TEMP_DIR=\$(mktemp -d);
             cd "\$TEMP_DIR";
             echo "Entered temporary directory: \$TEMP_DIR";
-            git clone --branch ${{github.ref_name}} --depth 1 "${{github.server_url}}/${{github.repository}}.git";
+            git clone \
+              --branch ${{github.ref_name}} \
+              --depth 1 \
+              "${{github.server_url}}/${{github.repository}}.git";
             cd "$REPO_NAME";
             git checkout "${{github.ref_name}}";
             find . -name '*.sh' -type f -exec chmod u+x {} \;
             cp ~/env/${REPO_NAME}/.env .env;
-            echo "Copied envars"
+            echo "Copied envars";
             
-
             echo "Rebuilding images...";
-            sudo docker compose -p gotravix --env-file .env -f docker/docker-compose-prod.yml build;
+            sudo docker compose 
+              -p gotravix \
+              --env-file .env \
+              -f docker/docker-compose-prod.yml \
+              build;
 
             if [ $? -ne 0 ]; then
               echo "Build failed, exiting.";
@@ -44,38 +63,49 @@ jobs:
             fi
 
             echo "Deploying new containers...";
-            sudo docker compose --env-file .env -p gotravix -f docker/docker-compose-prod.yml up -d backend db-migrator;
+            sudo docker compose \
+              --env-file .env \
+              -p gotravix \
+              -f docker/docker-compose-prod.yml \
+              up \
+                -d \
+                backend db-migrator;
 
             if [ $? -ne 0 ]; then
-              echo "Deployment failed, rolling back!";
-              sudo docker compose -p gotravix -f docker/docker-compose-prod.yml down --remove-orphans backend db-migrator;
+              echo "Deployment failed, starting the rollback!";
+              echo "Killing containers...";
+              sudo docker compose \
+                -p gotravix \
+                -f docker/docker-compose-prod.yml \
+                kill backend db-migrator;
+              echo "Tearing everything down..."
+              sudo docker compose \
+                -p gotravix \
+                -f docker/docker-compose-prod.yml \
+                down \
+                  --remove-orphans \
+                  backend db-migrator;
               cd ~/"${REPO_NAME}";
-              sudo docker compose -p gotravix --env-file .env -f docker/docker-compose-prod.yml up -d backend db-migrator;
+              echo "Bringing back on the older snapshot..."
+              sudo docker compose \
+                -p gotravix \
+                --env-file .env \
+                -f docker/docker-compose-prod.yml \
+                up \
+                  -d \
+                  backend db-migrator;
+              
               if [ $? -ne 0 ]; then
-                echo "Rollback failed, Admistrator needs to fix the issue!";
-                echo "Exiting"
-                exit 1;
+                echo "Rollback failed, an admin needs to fix the issue!";
+              else 
+                echo "Rolled back in one piece!!";
               fi
-              echo "Rollback successful!";
-              echo "Exiting"
+
+              echo "Exiting";
               exit 1;
             fi
-
             echo "Successfully deployed ${REPO_NAME} on branch ${{github.ref_name}}";
-            rm -rf ~/"${REPO_NAME}";
-            cp -r . ~/"${REPO_NAME}";
-            echo "Moved new repo to home directory";
-            cd ~/"${REPO_NAME}";
-            echo "Cleaning up temporary directory...";
-            rm -rf "\$TEMP_DIR";
-            echo "Done!";
+
           END
 
-
         shell: bash
-    
-
-
-
-
-
