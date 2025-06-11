@@ -35,7 +35,7 @@ jobs:
             
 
             echo "Rebuilding images...";
-            sudo docker-compose --env-file .env -f docker/docker-compose-prod.yml build;
+            sudo docker compose --env-file .env -f docker/docker-compose-prod.yml build;
 
             if [ $? -ne 0 ]; then
               echo "Build failed, exiting.";
@@ -43,7 +43,7 @@ jobs:
             fi
 
             echo "Dropping old containers ...";
-            sudo docker-compose -f docker/docker-compose-prod.yml down --remove-orphans gotravix-api db-migrator;
+            sudo docker compose -f docker/docker-compose-prod.yml down --remove-orphans gotravix-api db-migrator;
 
             if [ $? -ne 0 ]; then
               echo "Failed to stop old containers, exiting.";
@@ -51,13 +51,13 @@ jobs:
             fi
 
             echo "Deploying new containers ...";
-            sudo docker-compose --env-file .env -f docker/docker-compose-prod.yml up -d gotravix-api db-migrator;
+            sudo docker compose --env-file .env -f docker/docker-compose-prod.yml up -d gotravix-api db-migrator;
 
             if [ $? -ne 0 ]; then
               echo "Deployment failed, rolling back!";
-              sudo docker-compose -f docker/docker-compose-prod.yml down --remove-orphans gotravix-api db-migrator;
+              sudo docker compose -f docker/docker-compose-prod.yml down --remove-orphans gotravix-api db-migrator;
               cd ~/"${REPO_NAME}";
-              sudo docker-compose --env-file .env -f docker/docker-compose-prod.yml up -d gotravix-api db-migrator;
+              sudo docker compose --env-file .env -f docker/docker-compose-prod.yml up -d gotravix-api db-migrator;
               if [ $? -ne 0 ]; then
                 echo "Rollback failed, Admistrator needs to fix the issue!";
                 echo "Exiting"
