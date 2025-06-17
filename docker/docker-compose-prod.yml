@@ -45,6 +45,11 @@ services:
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
       - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9000/minio/health/ready"]
+      timeout: 10s
+      retries: 5
+      interval: 5s
     networks:
       - gotravix
     volumes:
@@ -61,6 +66,8 @@ services:
         condition: service_healthy
       db-migrator:
         condition: service_started
+      s3: 
+        condition: service_healthy
     ports:
       - 3000:3000
     networks:
