@@ -43,8 +43,6 @@ services:
     environment:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER:-admin}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
-      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
-      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:9000/minio/health/ready"]
       timeout: 10s
