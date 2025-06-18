@@ -117,7 +117,8 @@
       "@routers/*": ["routers/*"],
       "@utils/*": ["utils/*"],
       "@scripts/*": ["utils/scripts/*"],
-      "@helpers/*": ["helpers/*"]
+      "@helpers/*": ["helpers/*"],
+      "@env": ["constants/env"]
     }
 
   },
