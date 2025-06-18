@@ -44,6 +44,16 @@ const envSchema = z
         SMTP_FROM: z
             .string()
             .default("no-reply@gotravix.com"),
+        S3_REGION: z
+            .string()
+            .optional()
+            .default("us-east"),
+        S3_ENDPOINT: z
+            .string(),
+        APP_S3_ACCESS_KEY: z
+            .string(),
+        APP_S3_SECRET_KEY: z    
+            .string(),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -76,6 +86,10 @@ export const {
     SMTP_USER,
     SMTP_PASS,
     SMTP_FROM,
+    S3_ENDPOINT,
+    S3_REGION,
+    APP_S3_ACCESS_KEY,
+    APP_S3_SECRET_KEY,
 } = parsed.data;
 
 
