@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import {  getUserById } from '@repository/userRepository';
+import {  getUserById } from '@/repositories/db/userRepository';
 
 import { buildUserDataFull } from "@/utils/buildUserData";
 

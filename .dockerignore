@@ -5,4 +5,4 @@ node_modules/
 .github/
 Dockerfile
 docker/
-docker-compose*.yml
+!docker/scripts/

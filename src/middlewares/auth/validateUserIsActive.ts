@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { getUserByEmail } from "@/repository/userRepository";
+import { getUserByEmail } from "@/repositories/db/userRepository";
 
 export const validateUserIsActive = async (req: Request, res: Response, next: NextFunction) => {
   const { email } = req.body;

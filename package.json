@@ -16,6 +16,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.830.0",
+    "@aws-sdk/lib-storage": "^3.830.0",
     "@faker-js/faker": "^9.8.0",
     "@hono/zod-openapi": "^0.19.8",
     "bcrypt": "^5.1.1",

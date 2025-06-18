@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { getAllUsers } from "@/repository/userRepository";
+import { getAllUsers } from "@/repositories/db/userRepository";
 
 export const validateUniqueEmail = async (req: Request, res: Response, next: NextFunction) => {
   const { email } = req.body;

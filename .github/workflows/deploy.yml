@@ -3,6 +3,7 @@ name: "Build, Test, and Deploy"
 on:
   push:
     branches:
+      # - main
       - arturo_dev
 
 jobs:
@@ -10,54 +11,116 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Get repo name
+        run: |
+          echo "REPO_NAME=$(basename ${{github.repository}})" >> $GITHUB_ENV
+      - name: Fetch changes, build and deploy
+        env:
+          VPS_KEY: "${{secrets.VPS_KEY}}"
+          VPS_USER: "${{secrets.VPS_USER}}"
+          VPS_HOST: "${{secrets.VPS_HOST}}"
+        run: |
+          echo  "${VPS_KEY}" > private.key && chmod 600 private.key;
+          ssh -i private.key -o StrictHostKeyChecking=no "${VPS_USER}"@"${VPS_HOST}" bash -s <<END
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
+            function cleanup {
+              echo "Starting cleanup!";
+              if [ \$SUCCESS ]; then
+                echo "Removing older snapshot with newer one...";
+                rm -rf ~/"$REPO_NAME";
+                mv -r "\$TEMP_DIR"/"$REPO_NAME" ~;
+                echo "Done!";
+              fi
+              echo "Removing temporary directory...";
+              cd ~;
+              rm -fr "\$TEMP_DIR";
+              echo "Finished cleanup!";
+            }
 
-      - name: Install dependencies
-        run: npm install --prod
 
-      - name: Build Docker image
-        run: docker build -t gotravix-api:latest .
+            set -x;
+            TEMP_DIR=\$(mktemp -d);
 
-      - name: Save Docker image to file
-        run: docker save gotravix-api:latest -o gotravix-api.tar
+            if [ -z \$TEMP_DIR ]; then
+              echo "Failed to create temporary directory. Exiting!";
+              exit 1;
+            fi
 
-      - name: Copy Docker image and compose files to remote server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          source: |
-            gotravix-api.tar
-            docker/docker-compose-prod.yml
-            docker/nginx/nginx.conf
-            docker/certbot/
-          target: "~/gotravix-deploy"
 
-      - name: Deploy on remote server via SSH
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            cd ~/gotravix-deploy
-            docker load -i gotravix-api.tar
-            docker compose -f docker/docker-compose-prod.yml down || true
-            docker compose -f docker/docker-compose-prod.yml up -d --remove-orphans
+            cd "\$TEMP_DIR";
 
-      - name: Verify deployment (temporary)
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            docker ps
-            curl -I http://localhost:3000
+            echo "Entered temporary directory: \$TEMP_DIR";
+
+            trap cleanup EXIT;
+
+            git clone \
+              --branch ${{github.ref_name}} \
+              --depth 1 \
+              "${{github.server_url}}/${{github.repository}}.git";
+            cd "$REPO_NAME";
+            git checkout "${{github.ref_name}}";
+            find . -name '*.sh' -type f -exec chmod u+x {} \;
+            cp ~/env/${REPO_NAME}/.env .env;
+            echo "Copied envars";
+            
+            echo "Rebuilding images...";
+            sudo docker compose 
+              -p gotravix \
+              --env-file .env \
+              -f docker/docker-compose-prod.yml \
+              build;
+
+            if [ $? -ne 0 ]; then
+              echo "Build failed, exiting.";
+              exit 1;
+            fi
+
+            echo "Deploying new containers...";
+            sudo docker compose \
+              --env-file .env \
+              -p gotravix \
+              -f docker/docker-compose-prod.yml \
+              up \
+                -d \
+                backend db-migrator;
+
+            if [ $? -ne 0 ]; then
+              echo "Deployment failed, starting the rollback!";
+              echo "Killing containers...";
+              sudo docker compose \
+                -p gotravix \
+                -f docker/docker-compose-prod.yml \
+                kill backend db-migrator;
+              echo "Tearing everything down..."
+              sudo docker compose \
+                -p gotravix \
+                -f docker/docker-compose-prod.yml \
+                down \
+                  --remove-orphans \
+                  backend db-migrator;
+              cd ~/"${REPO_NAME}";
+              echo "Bringing back on the older snapshot..."
+              sudo docker compose \
+                -p gotravix \
+                --env-file .env \
+                -f docker/docker-compose-prod.yml \
+                up \
+                  -d \
+                  backend db-migrator;
+              
+              if [ $? -ne 0 ]; then
+                echo "Rollback failed, an admin needs to fix the issue!";
+              else 
+                echo "Rolled back in one piece!!";
+              fi
+
+              echo "Exiting";
+              exit 1;
+            fi
+            
+            SUCCESS=$(true);
+            echo "Successfully deployed ${REPO_NAME} on branch ${{github.ref_name}}";
+
+          END
+
+        shell: bash

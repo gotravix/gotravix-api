@@ -1,28 +1,28 @@
 # ---- Build Stage ----
-FROM node:20-alpine AS build
+FROM node:lts AS build
 
 WORKDIR /app
 
 # Install dependencies (including devDependencies for build tools)
 COPY package*.json ./
-RUN npm ci
+RUN npm i
 
 COPY . .
 
 RUN npm run build
 
 # ---- Production Stage ----
-FROM node:20-alpine
-
+FROM node:lts AS production
+COPY docker/scripts/wait-for-it.sh /usr/local/bin/wait-for-it
 WORKDIR /app
 
 # Install only production dependencies
 COPY package*.json ./
-RUN npm ci --production
+COPY --from=build /app/node_modules ./node_modules
 
 COPY --from=build /app/dist ./dist
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start"]
+CMD ["node", "dist/app.js"]
 
