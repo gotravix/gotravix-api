@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { domainRegex } from "@/utils/regexes";
 import z from "zod";
+import logger from "@/utils/logger";
 
 const envSchema = z
     .object({
@@ -47,9 +48,22 @@ const envSchema = z
 
 const parsed = envSchema.safeParse(process.env);
 
-if (parsed.error) {
-    throw parsed.error;
+if (!parsed.success) {
+    const formattedErrors = Object.entries(parsed.error.format())
+        .filter(([key]) => key !== "_")
+        .map(([key, value]: [string, any]) => {
+            if (value && value._errors && value._errors.length > 0) {
+                return `- ${key}: ${value._errors.join(", ")}`;
+            }
+            return null;
+        })
+        .filter(Boolean)
+        .join("\n");
+
+    logger.error(`❌ Error en variables de entorno requeridas:\n${formattedErrors}`);
+    process.exit(1);
 }
+
 export const {
     NODE_ENV,
     APP_PORT,
