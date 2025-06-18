@@ -8,6 +8,10 @@ export const casesSchema = table("case", {
     patientId: integer("patient_id")
         .notNull()
         .references(() => patientsSchema.userId),
+    clinicId: integer("clinic_id")
+        .references(() => clinicsSchema.userId),
+    lawyerId: integer("lawyer_id")
+        .references(() => lawyersSchema.userId),
     description: varchar("description")
         .notNull(),
     createdAt: timestamp("created_at", {withTimezone: true})
@@ -17,21 +21,4 @@ export const casesSchema = table("case", {
         .notNull()
         .defaultNow(), 
 
-})
-
-export const casesUsersSchema = table("cases_users", {
-    caseId: integer("case_id")
-        .notNull()
-        .references(() => casesSchema.id),
-    patientId: integer("patient_id")
-        .notNull()
-        .references(() => patientsSchema.userId),
-    lawyerId: integer("lawyer_id")
-        .references(() => lawyersSchema.userId),
-    clinicId: integer("clinic_id")
-        .references(() => clinicsSchema.userId),
-    createdAt: timestamp("created_at", {withTimezone: true})
-        .notNull()
-        .defaultNow(),
-    
 })
