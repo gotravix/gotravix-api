@@ -1,9 +1,9 @@
 import { Upload } from '@aws-sdk/lib-storage';
 import s3Client from './client';
-import { CreateBucketCommand, DeleteObjectCommand, GetObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
+import { CreateBucketCommand, DeleteObjectCommand, GetObjectCommand, HeadBucketCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { APP_DOCUMENT_BUCKET_NAME } from "@env"
 
-async function uploadStreamToS3({
+export async function uploadStreamToS3({
     bucket, 
     key, 
     readableStream, 
@@ -31,7 +31,7 @@ async function uploadStreamToS3({
   }
 
 }
-async function getObjectStream(bucket: string, key: string) {
+export async function getObjectStream(bucket: string, key: string) {
   const command = new GetObjectCommand({ Bucket: bucket, Key: key });
   const data = await s3Client.send(command);
 
@@ -44,18 +44,34 @@ async function getObjectStream(bucket: string, key: string) {
 }
 
 
-async function deleteObject(bucket: string, key: string) {
+export async function deleteObject(bucket: string, key: string) {
     const command = new DeleteObjectCommand({ Bucket: bucket, Key: key });
     return s3Client.send(command);
 }
 
-async function listObjects(bucket: string, prefix = '') {
+export async function listObjects(bucket: string, prefix = '') {
     const command = new ListObjectsV2Command({ Bucket: bucket, Prefix: prefix });
     const data = await s3Client.send(command);
     return data.Contents || [];
 }
 
-async function createBucket(bucket: string) {
+export async function createBucket(bucket: string) {
   const command = new CreateBucketCommand({ Bucket: APP_DOCUMENT_BUCKET_NAME });
   await s3Client.send(command)
+}
+
+export async function bucketExists(bucket: string) {
+  try {
+    await s3Client.send(new HeadBucketCommand({ Bucket: bucket }));
+    return true; 
+  } catch (err: any) {
+    if (err.$metadata?.httpStatusCode === 404) {
+      return false; 
+    }
+    if (err.$metadata?.httpStatusCode === 403) {
+      
+      return false;
+    }
+    throw err; // Other errors (network, misconfiguration, etc.)
+  }
 }
