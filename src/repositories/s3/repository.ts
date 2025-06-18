@@ -1,6 +1,7 @@
 import { Upload } from '@aws-sdk/lib-storage';
 import s3Client from './client';
-import { DeleteObjectCommand, GetObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
+import { CreateBucketCommand, DeleteObjectCommand, GetObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
+import { APP_DOCUMENT_BUCKET_NAME } from "@env"
 
 async function uploadStreamToS3({
     bucket, 
@@ -52,4 +53,9 @@ async function listObjects(bucket: string, prefix = '') {
     const command = new ListObjectsV2Command({ Bucket: bucket, Prefix: prefix });
     const data = await s3Client.send(command);
     return data.Contents || [];
+}
+
+async function createBucket(bucket: string) {
+  const command = new CreateBucketCommand({ Bucket: APP_DOCUMENT_BUCKET_NAME });
+  await s3Client.send(command)
 }

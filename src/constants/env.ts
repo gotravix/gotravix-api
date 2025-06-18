@@ -54,6 +54,8 @@ const envSchema = z
             .string(),
         APP_S3_SECRET_KEY: z    
             .string(),
+        APP_DOCUMENT_BUCKET_NAME: z
+            .string(),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -90,6 +92,7 @@ export const {
     S3_REGION,
     APP_S3_ACCESS_KEY,
     APP_S3_SECRET_KEY,
+    APP_DOCUMENT_BUCKET_NAME,
 } = parsed.data;
 
 
