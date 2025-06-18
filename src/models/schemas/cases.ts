@@ -1,5 +1,5 @@
-import { integer, serial, pgTable as table, timestamp, varchar } from "drizzle-orm/pg-core"
-import { clinicsSchema, lawyersSchema, patientsSchema, usersSchema } from "@schemas/users"
+import { integer, serial, pgTable as table, timestamp, varchar } from "drizzle-orm/pg-core";
+import { clinicsSchema, lawyersSchema, patientsSchema, usersSchema } from "@schemas/users";
 export const casesSchema = table("case", {
     id: serial("id")
         .primaryKey(),
