@@ -1,8 +1,9 @@
 import express, { Application } from 'express';
 import cors from 'cors';
-import { APP_PORT, S3_ENDPOINT } from '@/constants/env';
+import { APP_DOCUMENT_BUCKET_NAME, APP_PORT, S3_ENDPOINT } from '@/constants/env';
 import { pool } from '@/config/db';
 import { errorHandler } from '@/middlewares/errorHandler';
+import { bucketExists, createBucket } from '@/repositories/s3/repository';
 
 
 class Server {
@@ -57,12 +58,18 @@ class Server {
     async listen() {
         try {
             await pool.query('SELECT 1');
+            console.log('\x1b[32m%s\x1b[0m', '✅ Conexión a la base de datos exitosa');
             const response = await fetch(new URL("/minio/health/ready", S3_ENDPOINT));
             if (!response.ok) {
                 console.warn("S3 service is not ready yet!");
             }
             console.log('\x1b[32m%s\x1b[0m', '✅ S3 service is ready');
-            console.log('\x1b[32m%s\x1b[0m', '✅ Conexión a la base de datos exitosa');
+            if (!await bucketExists(APP_DOCUMENT_BUCKET_NAME)) {
+                console.log(`Document bucket "${APP_DOCUMENT_BUCKET_NAME}" doesn't exist. Creating it...`)
+                await createBucket(APP_DOCUMENT_BUCKET_NAME);
+                console.log("Done")
+            }
+
         } catch (error) {
             console.error('\x1b[31m%s\x1b[0m', '❌ Error al conectar con la base de datos:', error);
             process.exit(1);
