@@ -57,7 +57,7 @@ class Server {
     async listen() {
         try {
             await pool.query('SELECT 1');
-            const response = await fetch(new URL("/health/ready", S3_ENDPOINT));
+            const response = await fetch(new URL("/minio/health/ready", S3_ENDPOINT));
             if (!response.ok) {
                 console.warn("S3 service is not ready yet!");
             }
