@@ -1,5 +1,5 @@
-import { getPatientByUserId } from "@/repository/patientRepository";
-import { getClinicByUserId } from "@/repository/clinicRepository";
+import { getPatientByUserId } from "@/repositories/db/patientRepository";
+import { getClinicByUserId } from "@/repositories/db/clinicRepository";
 import { getEmptyPatient, getEmptyClinic } from "@/utils/emptySchemas";
 
 export async function buildUserData(usuario: any) {
