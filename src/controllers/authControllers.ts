@@ -5,12 +5,10 @@ import generarJWT from "@/helpers/jwt";
 import { createUser, getUserById, updateUser, getUserByEmail } from "@/repositories/db/userRepository";
 import { NewUser } from "@/models/schemas/users";
 import { createActivationToken, getActivationToken, deleteActivationToken } from "@/repositories/db/activationTokenRepository";
-import { getPatientByUserId } from '@/repositories/db/patientRepository';
-import { getClinicByUserId } from '@/repositories/db/clinicRepository';
-import { getEmptyPatient, getEmptyClinic } from '@/utils/emptySchemas';
 import { sendEmail } from "@helpers/sendEmail";
 import { APP_ORIGIN } from "@/constants/env";
 import { buildUserData } from "@/utils/buildUserData";
+import logger from "@/utils/logger";
 
 export const registrer = async (req: Request, res: Response) => {
   try {
@@ -58,8 +56,9 @@ export const registrer = async (req: Request, res: Response) => {
       message: '🎉 User registered successfully. Please check your email to activate your account.',
       user: { id: user.id, email: user.email, role:user.role, created_at: user.created_at },
     });
+    logger.info("User registered", { user: { id: user.id, email: user.email, role: user.role } });
   } catch (error) {
-    console.error(error);
+    logger.error("Error in registration", { error });
     return res.status(500).json({
       ok: false,
       message: '💥 Please contact the administrator',
@@ -96,8 +95,9 @@ export const login = async (req: Request, res: Response) => {
       token,
       user: userData,
     });
+    logger.info("User logged in", { email });
   } catch (error) {
-    console.error(error);
+    logger.error("Error in login", { error });
     return res.status(500).json({
       ok: false,
       message: '💥 Please contact the administrator',
@@ -155,6 +155,7 @@ export const activateUser = async (req: Request, res: Response) => {
     const userData = await buildUserData(user);
     // Generar JWT para el usuario activado
     const tokenJwt = await generarJWT(user.id.toString(), user.email, user.email);
+    logger.info("User activated", { userId: user.id });
     return res.status(200).json({
       ok: true,
       message: "✅ Account activated successfully!",
@@ -162,7 +163,7 @@ export const activateUser = async (req: Request, res: Response) => {
       user: userData,
     });
   } catch (error) {
-    console.error(error);
+    logger.error("Error in activation", { error });
     return res.status(500).json({
       ok: false,
       message: "💥 Please contact the administrator",

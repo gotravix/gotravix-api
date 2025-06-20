@@ -27,23 +27,18 @@ const envSchema = z
             .url(),
         SMTP_HOST: z
             .string()
-            .regex(domainRegex)
-            .default("smtp.mailtrap.io"),
+            .regex(domainRegex),
         SMTP_PORT: z
             .coerce
             .number()
             .min(0)
-            .max(65435)
-            .default(2525),
+            .max(65435),
         SMTP_USER: z
-            .string()
-            .default("<usuario_mailtrap>"),
-        SMTP_PASS: z
-            .string()
-            .default("<password_mailtrap>"),
+            .string(),
+        SMTP_PASSWORD: z
+            .string(),
         SMTP_FROM: z
-            .string()
-            .default("no-reply@gotravix.com"),
+            .string(),
         S3_REGION: z
             .string()
             .optional()
@@ -86,7 +81,7 @@ export const {
     SMTP_HOST,
     SMTP_PORT,
     SMTP_USER,
-    SMTP_PASS,
+    SMTP_PASSWORD,
     SMTP_FROM,
     S3_ENDPOINT,
     S3_REGION,

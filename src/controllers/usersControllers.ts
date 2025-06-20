@@ -1,23 +1,25 @@
 import { Request, Response } from "express";
 import {  getUserById } from '@/repositories/db/userRepository';
-
 import { buildUserDataFull } from "@/utils/buildUserData";
+import logger from "@/utils/logger";
 
 export const getUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const user = await getUserById(Number(id));
     if (!user) {
+      logger.warn("User not found", { id });
       return res.status(404).json({ ok: false, message: "User not found" });
     }
     const userData = await buildUserDataFull(user);
+    logger.info("User retrieved", { id });
     return res.status(200).json({
       ok: true,
       message: "✅ User retrieved successfully",
       user: userData
     });
   } catch (error) {
-    console.error(error);
+    logger.error("Error retrieving user", { error });
     res.status(500).json({
       ok: false,
       message: '💥 Internal server error',
@@ -75,14 +77,17 @@ export const getUser = async (req: Request, res: Response) => {
 // };
 
 export const createUsers = (req: Request, res: Response) => {
-  console.log(`Query Params => "${JSON.stringify(req.query)}"`);
-  console.log(`Body Params => "${JSON.stringify(req.body)}"`);
-  console.log(`Path Params => "${JSON.stringify(req.params)}"`);
+  logger.info("Create user request", {
+    query: req.query,
+    body: req.body,
+    params: req.params
+  });
 }
 
 export const updateUsers = (req: Request, res: Response) => {
-  console.log(`Query Params => "${JSON.stringify(req.query)}"`);
-  console.log(`Body Params => "${JSON.stringify(req.body)}"`);
-  console.log(`Path Params => "${JSON.stringify(req.params)}"`);
-
+  logger.info("Update user request", {
+    query: req.query,
+    body: req.body,
+    params: req.params
+  });
 }

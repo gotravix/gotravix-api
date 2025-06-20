@@ -19,6 +19,7 @@ class Server {
             auth: '/api/v1/auth',
             users: '/api/v1/users',      
             patients: '/api/v1/patients',      
+            case: '/api/v1/cases',      
         }
 
         // Middlewares
@@ -57,12 +58,12 @@ class Server {
     async listen() {
         try {
             await pool.query('SELECT 1');
-            const response = await fetch(new URL("/health/ready", S3_ENDPOINT));
-            if (!response.ok) {
-                console.warn("S3 service is not ready yet!");
-            }
-            console.log('\x1b[32m%s\x1b[0m', '✅ S3 service is ready');
-            console.log('\x1b[32m%s\x1b[0m', '✅ Conexión a la base de datos exitosa');
+            // const response = await fetch(new URL("/health/ready", S3_ENDPOINT));
+            // if (!response.ok) {
+            //     console.warn("S3 service is not ready yet!");
+            // }
+            // console.log('\x1b[32m%s\x1b[0m', '✅ S3 service is ready');
+            // console.log('\x1b[32m%s\x1b[0m', '✅ Conexión a la base de datos exitosa');
         } catch (error) {
             console.error('\x1b[31m%s\x1b[0m', '❌ Error al conectar con la base de datos:', error);
             process.exit(1);
