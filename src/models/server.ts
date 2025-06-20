@@ -3,6 +3,8 @@ import cors from 'cors';
 import { APP_PORT, S3_ENDPOINT } from '@/constants/env';
 import { pool } from '@/config/db';
 import { errorHandler } from '@/middlewares/errorHandler';
+import { transporter } from "@/helpers/sendEmail";
+import logger from "@/utils/logger";
 
 
 class Server {
@@ -58,18 +60,40 @@ class Server {
     async listen() {
         try {
             await pool.query('SELECT 1');
-            // const response = await fetch(new URL("/health/ready", S3_ENDPOINT));
-            // if (!response.ok) {
-            //     console.warn("S3 service is not ready yet!");
-            // }
-            // console.log('\x1b[32m%s\x1b[0m', '✅ S3 service is ready');
-            // console.log('\x1b[32m%s\x1b[0m', '✅ Conexión a la base de datos exitosa');
+            // Validate SMTP connection depending on environment
+            try {
+                await transporter.verify();
+                logger.info("✅ SMTP server is ready");
+            } catch (smtpError) {
+                if (process.env.NODE_ENV === 'development') {
+                    logger.error("❌ SMTP server is not ready or credentials are invalid. Shutting down in development.", { error: smtpError });
+                    process.exit(1);
+                } else {
+                    logger.warn("⚠️  SMTP server is not ready or credentials are invalid (only logged in production)", { error: smtpError });
+                }
+            }
+
+            // Validate S3/MinIO connection before starting server
+            try {
+                const healthUrl = new URL("/minio/health/ready", S3_ENDPOINT).toString();
+                const response = await fetch(healthUrl);
+                if (!response.ok) throw new Error(`S3 health check failed with status ${response.status}`);
+                logger.info("✅ S3 service is ready");
+            } catch (s3Error) {
+                if (process.env.NODE_ENV === 'development') {
+                    logger.error("❌ S3 service is not ready or unreachable. Shutting down in development.", { error: s3Error });
+                    process.exit(1);
+                } else {
+                    logger.warn("⚠️  S3 service is not ready or unreachable (only logged in production)", { error: s3Error });
+                }
+            }
+
         } catch (error) {
-            console.error('\x1b[31m%s\x1b[0m', '❌ Error al conectar con la base de datos:', error);
+            logger.error('❌ Error connecting to the database:', { error });
             process.exit(1);
         }
         this.app.listen(this.port, () => {
-            console.log('\x1b[36m%s\x1b[0m', `🚀 Servidor corriendo en puerto ${this.port}`);
+            logger.info(`🚀 Server running on port ${this.port}`);
         });
     }
 

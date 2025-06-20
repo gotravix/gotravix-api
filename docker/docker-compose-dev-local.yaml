@@ -1,0 +1,59 @@
+version: '3.3'
+
+services:
+  postgres:
+    container_name: bd
+    image: postgres:15
+    networks:
+      - gotravix
+    command: ["postgres", "-c", "max_connections=1000"]
+    restart: always
+    ports:
+      - 15432:5432
+    environment:
+      - POSTGRES_PASSWORD=Desarrollo123***
+      - POSTGRES_DB=gotravix
+      - POSTGRES_USER=root
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    expose:
+      - 15432
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4:latest
+    restart: always
+    networks:
+      - gotravix
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=ernestoms91@gmail.com
+      - PGADMIN_DEFAULT_PASSWORD=Desarrollo123***
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - 4003:80
+
+  s3:
+    image: minio/minio:latest
+    container_name: s3
+    networks:
+      - gotravix
+    environment:
+      - MINIO_ROOT_USER=root
+      - MINIO_ROOT_PASSWORD=Desarrollo123***
+    ports:
+      - 9000:9000
+      - 9001:9001
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+  minio_data:
+
+networks:
+  gotravix:
+    name: gotravix
+    driver: bridge
