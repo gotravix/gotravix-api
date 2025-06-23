@@ -13,7 +13,34 @@ const s3 = new S3Client({
     accessKeyId: APP_S3_ACCESS_KEY,
     secretAccessKey: APP_S3_SECRET_KEY,
   },
-  forcePathStyle: true, // Important for MinIO
+  forcePathStyle: true
 });
+
+s3.middlewareStack.add(
+  (next, context) => async (args: any) => {
+    console.log("Request:", {
+      method: args.request.method,
+      protocol: args.request.protocol,
+      hostname: args.request.hostname,
+      path: args.request.path,
+      headers: args.request.headers,
+      body: args.request.body,
+    });
+
+    const result:any = await next(args);
+
+    console.log("Response:", {
+      statusCode: result.response.statusCode,
+      headers: result.response.headers,
+      body: result.response.body,
+    });
+
+    return result;
+  },
+  {
+    step: "build",
+  }
+);
+
 
 export default s3;

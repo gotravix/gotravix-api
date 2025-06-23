@@ -56,7 +56,7 @@ export async function listObjects(bucket: string, prefix = '') {
 }
 
 export async function createBucket(bucket: string) {
-  const command = new CreateBucketCommand({ Bucket: APP_DOCUMENT_BUCKET_NAME });
+  const command = new CreateBucketCommand({ Bucket: bucket });
   await s3Client.send(command)
 }
 
