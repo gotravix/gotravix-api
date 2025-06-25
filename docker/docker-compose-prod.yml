@@ -98,52 +98,58 @@ services:
     command: |
       sh -c "wait-for-it && npm run start"
 
-  # nginx:
-  #   image: nginx:latest
-  #   ports:
-  #     - 80:80
-  #     - 443:443
-  #   volumes:
-  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-  #     - ./certbot/www:/var/www/certbot
-  #     - ./certbot/letsencrypt:/etc/letsencrypt
-  #   depends_on:
-  #     - gotravix-api
-  #   networks:
-  #     - gotravix
+  nginx:
+    image: nginx:latest
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - backend
+    volumes:
+      - ./nginx/nginx-prod.conf:/etc/nginx/nginx.conf
+      - cerbot_www:/var/www/certbot:ro
+      - cerbot_certs:/etc/letsencrypt:ro
+    networks:
+      - gotravix
   
-  # certbot:
-  #   image: certbot/certbot
-  #   volumes:
-  #     - ./certbot/www:/var/www/certbot
-  #     - ./certbot/conf:/etc/letsencrypt
-  #   entrypoint: /bin/sh -c
-  #   command: |
-  #     trap exit TERM
-  #     DOMAIN=brakusa.com
-  #     EMAIL=admin@brakusa.com
-  #     CERT_PATH="/etc/letsencrypt/live/$DOMAIN/fullchain.pem"
-  #     while :; do
-  #       if [ ! -f "$CERT_PATH" ]; then
-  #         certbot certonly \
-  #           --webroot \
-  #           -w /var/www/certbot \
-  #           -d $DOMAIN \
-  #           --email $EMAIL \
-  #           --agree-tos \
-  #           --no-eff-email \
-  #           --non-interactive
-  #       else
-  #         certbot renew --webroot -w /var/www/certbot
-  #       fi
-  #       sleep 72h & wait $!
-  #     done
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - cerbot_www:/var/www/certbot
+      - cerbot_certs:/etc/letsencrypt
+    entrypoint: /bin/sh -c
+    depends_on:
+      - nginx
+    command: |
+      trap exit TERM;
+      DOMAIN=brakusa.com;
+      EMAIL=admin@brakusa.com;
+      CERT_PATH="/etc/letsencrypt/live/$${DOMAIN}/fullchain.pem";
+      while :; do
+        if [ ! -f "$${CERT_PATH}" ]; then
+          certbot certonly \
+            --webroot \
+            -w /var/www/certbot \
+            -d $${DOMAIN} \
+            --email $${EMAIL} \
+            --agree-tos \
+            --no-eff-email \
+            --non-interactive
+        else
+          certbot renew --webroot -w /var/www/certbot
+        fi
+        sleep 72h & wait $${!}
+      done
 
-    # networks:
-      # - gotravix
+    networks:
+      - gotravix
     
 
 volumes:
+  cerbot_www:
+    driver: local
+  certbot_certs:
+    driver: local
   pgadmin_data:
     driver: local
   postgres_data:
