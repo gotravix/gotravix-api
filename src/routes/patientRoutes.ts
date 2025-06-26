@@ -1,30 +1,47 @@
-import { createPatientEndpoint, getPatient, updatePatientEndpoint, deletePatientEndpoint } from "@controllers/patientController";
+import {
+  createPatientEndpoint,
+  updatePatientEndpoint,
+} from "@controllers/patientController";
 import { validateJWT } from "@/middlewares/auth/validateJwt";
-import { validatePatientFields } from "@middlewares/validatePatientFields";
-import { validateRolePatient } from "@middlewares/validateRolePatient";
-import { validatePatientUserId } from "@middlewares/validatePatientUserId";
-import z from "zod";
+import {
+  validatePatientNotExists,
+  validatePatientExists,
+  validateRolePatient,
+  validateUserIsSelf,
+  validateIdParam,
+} from "@/middlewares/patients";
 import { validateSchemaMw } from "../middlewares/users/validateSchema";
-import { UserIdValidation } from "@/validations/users";
-
-const { Router } = require('express');
+import { patientValidation } from "@/validations/patients";
+import { validateUniqueUsername } from "@/middlewares/users/validateUniqueUsername";
+const { Router } = require("express");
 const router = Router();
 
-router.get(
-  "/:id",
-  [validateJWT, validateRolePatient, validateSchemaMw(UserIdValidation, "params")],
-  getPatient
+
+
+router.post(
+  "/new",
+  [
+    validateJWT,
+    validateRolePatient,
+    validateUserIsSelf,
+    validatePatientNotExists,
+    validateSchemaMw(patientValidation, "body"),
+    validateUniqueUsername,
+  ],
+  createPatientEndpoint
 );
-router.post("/new", [validateJWT, validateRolePatient, validatePatientUserId, validatePatientFields], createPatientEndpoint);
 router.put(
   "/update/:id",
-  [validateJWT, validateRolePatient, validateSchemaMw(UserIdValidation, "params"), validatePatientFields],
+  [
+    validateJWT,
+    validateRolePatient,
+    validateUserIsSelf,
+    validateIdParam,
+    validatePatientExists,
+    validateSchemaMw(patientValidation, "body"),
+    validateUniqueUsername,
+  ],
   updatePatientEndpoint
-);
-router.delete(
-  "/delete/:id",
-  [validateJWT, validateRolePatient, validateSchemaMw(UserIdValidation, "params")],
-  deletePatientEndpoint
 );
 
 module.exports = router;

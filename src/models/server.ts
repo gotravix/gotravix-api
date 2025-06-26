@@ -60,6 +60,7 @@ class Server {
     async listen() {
         try {
             await pool.query('SELECT 1');
+            logger.info("✅ Database connection successful");
             // Validate SMTP connection depending on environment
             try {
                 await transporter.verify();
