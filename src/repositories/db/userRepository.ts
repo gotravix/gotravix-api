@@ -39,3 +39,8 @@ export const getUserByEmail = async (email: string, withPassword = false): Promi
   }
   return undefined;
 };
+
+export const getUserByUsername = async (username: string): Promise<User | undefined> => {
+  const result = await db.select().from(usersSchema).where(eq(usersSchema.username, username));
+  return result[0];
+};
