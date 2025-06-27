@@ -6,7 +6,7 @@ import { createUser, getUserById, updateUser, getUserByEmail } from "@/repositor
 import { NewUser } from "@/models/schemas/users";
 import { createActivationToken, getActivationToken, deleteActivationToken } from "@/repositories/db/activationTokenRepository";
 import { sendEmail } from "@helpers/sendEmail";
-import { APP_ORIGIN } from "@/constants/env";
+import { APP_ORIGIN, FRONTEND_BASE_URL } from "@/constants/env";
 import { buildUserData } from "@/utils/buildUserData";
 import logger from "@/utils/logger";
 
@@ -43,7 +43,7 @@ export const registrer = async (req: Request, res: Response) => {
     });
 
     // Enviar email con la URL de activación
-    const activationUrl = `${APP_ORIGIN}/activate?token=${token}`;
+    const activationUrl = new URL(`/activate?token=${token}`, FRONTEND_BASE_URL).href;
     await sendEmail(
       email,
       "Activa tu cuenta en GoTravix",
