@@ -45,6 +45,7 @@ const envSchema = z
             .default("us-east"),
         S3_ENDPOINT: z
             .string(),
+        FRONTEND_BASE_URL: z.string().url(),
         APP_S3_ACCESS_KEY: z
             .string(),
         APP_S3_SECRET_KEY: z    
@@ -83,6 +84,7 @@ export const {
     SMTP_USER,
     SMTP_PASSWORD,
     SMTP_FROM,
+    FRONTEND_BASE_URL,
     S3_ENDPOINT,
     S3_REGION,
     APP_S3_ACCESS_KEY,
