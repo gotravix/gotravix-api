@@ -5,10 +5,8 @@ import {
 import { validateJWT } from "@/middlewares/auth/validateJwt";
 import {
   validatePatientNotExists,
-  validatePatientExists,
   validateRolePatient,
   validateUserIsSelf,
-  validateIdParam,
 } from "@/middlewares/patients";
 import { validateSchemaMw } from "../middlewares/users/validateSchema";
 import { patientValidation } from "@/validations/patients";
