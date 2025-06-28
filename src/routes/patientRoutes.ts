@@ -31,13 +31,11 @@ router.post(
   createPatientEndpoint
 );
 router.put(
-  "/update/:id",
+  "/update",
   [
     validateJWT,
     validateRolePatient,
     validateUserIsSelf,
-    validateIdParam,
-    validatePatientExists,
     validateSchemaMw(patientValidation, "body"),
     validateUniqueUsername,
   ],
