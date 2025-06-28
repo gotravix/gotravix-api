@@ -5,6 +5,14 @@ import logger from "@/utils/logger";
 import { db } from "@/config/db";
 
 
+interface AuthRequest extends Request {
+  user?: {
+    id: number | string;
+    // Puedes agregar más propiedades si tu token las incluye
+  };
+}
+
+
 export const createPatientEndpoint = async (req: Request, res: Response) => {
   const { userId, ...patientData } = req.body;
   try {
@@ -40,20 +48,20 @@ export const createPatientEndpoint = async (req: Request, res: Response) => {
   }
 };
 
-export const updatePatientEndpoint = async (req: Request, res: Response) => {
-  const userId = Number(req.params.id);
+export const updatePatientEndpoint = async (req: AuthRequest, res: Response) => {
+  const {id: userId} = req.user!
   const patientData = req.body;
   try {
     await db.transaction(async (tx) => {
       const now = new Date();
       // Actualiza el usuario primero
-      const updatedUser = await updateUser(userId, { username: patientData.username, updated_at: now }, tx);
+      const updatedUser = await updateUser(Number(userId), { username: patientData.username, updated_at: now }, tx);
       if (!updatedUser) {
         logger.warn("User not found for update", { userId });
         throw new Error("User not found");
       }
       // Actualiza el paciente usando el repositorio, pasando tx para atomicidad
-      const updatedPatient = await updatePatient(userId, { ...patientData, updatedAt: now }, tx);
+      const updatedPatient = await updatePatient(Number(userId), { ...patientData, updatedAt: now }, tx);
       const userPatient = {
         id: updatedUser.id,
         email: updatedUser.email,

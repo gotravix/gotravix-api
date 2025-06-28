@@ -13,7 +13,7 @@ const router = Router();
 const req = require('express/lib/request');
 
 
-router.get('/:id', [validateSchema(UserIdValidation, "params"), validateJWT, ensureOwnUser], getUser);
+router.get('/info', [ validateJWT], getUser);
 
 router.post(
     "/new",

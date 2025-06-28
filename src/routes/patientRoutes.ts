@@ -5,10 +5,8 @@ import {
 import { validateJWT } from "@/middlewares/auth/validateJwt";
 import {
   validatePatientNotExists,
-  validatePatientExists,
   validateRolePatient,
   validateUserIsSelf,
-  validateIdParam,
 } from "@/middlewares/patients";
 import { validateSchemaMw } from "../middlewares/users/validateSchema";
 import { patientValidation } from "@/validations/patients";
@@ -31,13 +29,11 @@ router.post(
   createPatientEndpoint
 );
 router.put(
-  "/update/:id",
+  "/update",
   [
     validateJWT,
     validateRolePatient,
     validateUserIsSelf,
-    validateIdParam,
-    validatePatientExists,
     validateSchemaMw(patientValidation, "body"),
     validateUniqueUsername,
   ],
