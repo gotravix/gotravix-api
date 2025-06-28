@@ -1,126 +1,33 @@
-# name: "Build, Test, and Deploy"
+name: "Build, Test, and Deploy"
 
-# on:
-#   push:
-#     branches:
-#       # # - main
-#       # - arturo_dev
+on:
+  push:
+    branches:
+      - main
+      # - arturo_dev
 
-# jobs:
-#   build-test-deploy:
-#     runs-on: ubuntu-latest
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
 
-#     steps:
-#       - name: Get repo name
-#         run: |
-#           echo "REPO_NAME=$(basename ${{github.repository}})" >> $GITHUB_ENV
-#       - name: Fetch changes, build and deploy
-#         env:
-#           VPS_KEY: "${{secrets.VPS_KEY}}"
-#           VPS_USER: "${{secrets.VPS_USER}}"
-#           VPS_HOST: "${{secrets.VPS_HOST}}"
-#         run: |
-#           echo  "${VPS_KEY}" > private.key && chmod 600 private.key;
-#           ssh -i private.key -o StrictHostKeyChecking=no "${VPS_USER}"@"${VPS_HOST}" bash -s <<END
+    steps:
+      - name: Get repo name
+        run: |
+          echo "REPO_NAME=$(basename ${{github.repository}})" >> $GITHUB_ENV
+      - name: Fetch changes, build and deploy
+        env:
+          VPS_KEY: "${{secrets.VPS_KEY}}"
+          VPS_USER: "${{secrets.VPS_USER}}"
+          VPS_HOST: "${{secrets.VPS_HOST}}"
+        run: |
+            echo "Deploying to VPS..."
+            ssh -o StrictHostKeyChecking=no -i $VPS_KEY $VPS_USER@$VPS_HOST << EOF
+                set -e
+                cd \~/$REPO_NAME || exit 1
+                git pull origin main || exit 1
+                docker compose -p gotravix --env-file .env -f docker/docker-compose-prod.yml build --pull --no-cache || exit 1
+                docker compose -p gotravix --env-file .env -f docker/docker-compose-prod.yml up -d --remove-orphans || exit 1
+                echo "Deployment completed successfully."
+            EOF
 
-#             function cleanup {
-#               echo "Starting cleanup!";
-#               if [ \$SUCCESS ]; then
-#                 echo "Removing older snapshot with newer one...";
-#                 rm -rf ~/"$REPO_NAME";
-#                 mv -r "\$TEMP_DIR"/"$REPO_NAME" ~;
-#                 echo "Done!";
-#               fi
-#               echo "Removing temporary directory...";
-#               cd ~;
-#               rm -fr "\$TEMP_DIR";
-#               echo "Finished cleanup!";
-#             }
-
-
-#             set -x;
-#             TEMP_DIR=\$(mktemp -d);
-
-#             if [ -z \$TEMP_DIR ]; then
-#               echo "Failed to create temporary directory. Exiting!";
-#               exit 1;
-#             fi
-
-
-#             cd "\$TEMP_DIR";
-
-#             echo "Entered temporary directory: \$TEMP_DIR";
-
-#             trap cleanup EXIT;
-
-#             git clone \
-#               --branch ${{github.ref_name}} \
-#               --depth 1 \
-#               "${{github.server_url}}/${{github.repository}}.git";
-#             cd "$REPO_NAME";
-#             git checkout "${{github.ref_name}}";
-#             find . -name '*.sh' -type f -exec chmod u+x {} \;
-#             cp ~/env/${REPO_NAME}/.env .env;
-#             echo "Copied envars";
-            
-#             echo "Rebuilding images...";
-#             sudo docker compose 
-#               -p gotravix \
-#               --env-file .env \
-#               -f docker/docker-compose-prod.yml \
-#               build;
-
-#             if [ $? -ne 0 ]; then
-#               echo "Build failed, exiting.";
-#               exit 1;
-#             fi
-
-#             echo "Deploying new containers...";
-#             sudo docker compose \
-#               --env-file .env \
-#               -p gotravix \
-#               -f docker/docker-compose-prod.yml \
-#               up \
-#                 -d \
-#                 backend db-migrator;
-
-#             if [ $? -ne 0 ]; then
-#               echo "Deployment failed, starting the rollback!";
-#               echo "Killing containers...";
-#               sudo docker compose \
-#                 -p gotravix \
-#                 -f docker/docker-compose-prod.yml \
-#                 kill backend db-migrator;
-#               echo "Tearing everything down..."
-#               sudo docker compose \
-#                 -p gotravix \
-#                 -f docker/docker-compose-prod.yml \
-#                 down \
-#                   --remove-orphans \
-#                   backend db-migrator;
-#               cd ~/"${REPO_NAME}";
-#               echo "Bringing back on the older snapshot..."
-#               sudo docker compose \
-#                 -p gotravix \
-#                 --env-file .env \
-#                 -f docker/docker-compose-prod.yml \
-#                 up \
-#                   -d \
-#                   backend db-migrator;
-              
-#               if [ $? -ne 0 ]; then
-#                 echo "Rollback failed, an admin needs to fix the issue!";
-#               else 
-#                 echo "Rolled back in one piece!!";
-#               fi
-
-#               echo "Exiting";
-#               exit 1;
-#             fi
-            
-#             SUCCESS=$(true);
-#             echo "Successfully deployed ${REPO_NAME} on branch ${{github.ref_name}}";
-
-#           END
-
-#         shell: bash
+        shell: bash
