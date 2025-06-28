@@ -24,7 +24,7 @@ jobs:
             echo  "${VPS_KEY}" > private.key && chmod 600 private.key;
             ssh -o StrictHostKeyChecking=no -i private.key $VPS_USER@$VPS_HOST bash -s << EOF
                 set -e
-                cd \~/$REPO_NAME || exit 1
+                cd ~/$REPO_NAME || exit 1
                 git pull origin main || exit 1
                 docker compose -p gotravix --env-file .env -f docker/docker-compose-prod.yml build --pull --no-cache || exit 1
                 docker compose -p gotravix --env-file .env -f docker/docker-compose-prod.yml up -d --remove-orphans || exit 1
