@@ -79,7 +79,7 @@ class Server {
                 const healthUrl = new URL("/minio/health/ready", S3_ENDPOINT).toString();
                 const response = await fetch(healthUrl);
                 if (!response.ok) throw new Error(`S3 health check failed with status ${response.status}`);
-                logger.info("✅ S3 service is ready (test)");
+                logger.info("✅ S3 service is ready");
             } catch (s3Error) {
                 if (process.env.NODE_ENV === 'development') {
                     logger.error("❌ S3 service is not ready or unreachable. Shutting down in development.", { error: s3Error });
