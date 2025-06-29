@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from '@/constants/env';
+import { JWT_SECRET, JWT_SECRET_EXPIRES } from '@/constants/env';
 
 interface Payload {
   id: string;
@@ -13,7 +13,7 @@ export const generarJWT = async (id: string, username: string, email: string): P
 
   try {
     const token = await new Promise<string>((resolve, reject) => {
-      jwt.sign(payload, JWT_SECRET, { expiresIn: '8h' }, (err, token) => {
+      jwt.sign(payload, JWT_SECRET, { expiresIn: 60 * JWT_SECRET_EXPIRES }, (err, token) => {
         if (err) {
           return reject('❌ Could not generate token: ' + err.message);
         }

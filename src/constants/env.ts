@@ -22,6 +22,8 @@ const envSchema = z
             .url(),
         JWT_SECRET: z.string(),
         JWT_REFRESH_SECRET: z.string(),
+        JWT_SECRET_EXPIRES: z.number().default(5),
+        JWT_REFRESH_SECRET_EXPIRES: z.number().default(30),
         DATABASE_URL: z
             .string()
             .url(),
@@ -77,7 +79,9 @@ export const {
     APP_PORT,
     APP_ORIGIN,
     JWT_SECRET,
+    JWT_SECRET_EXPIRES,
     JWT_REFRESH_SECRET,
+    JWT_REFRESH_SECRET_EXPIRES,
     DATABASE_URL,
     SMTP_HOST,
     SMTP_PORT,
