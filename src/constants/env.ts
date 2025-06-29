@@ -22,8 +22,8 @@ const envSchema = z
             .url(),
         JWT_SECRET: z.string(),
         JWT_REFRESH_SECRET: z.string(),
-        JWT_SECRET_EXPIRES: z.number().default(5),
-        JWT_REFRESH_SECRET_EXPIRES: z.number().default(30),
+        JWT_SECRET_EXPIRES: z.coerce.number().default(5),
+        JWT_REFRESH_SECRET_EXPIRES: z.coerce.number().default(30),
         DATABASE_URL: z
             .string()
             .url(),
