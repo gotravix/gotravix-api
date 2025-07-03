@@ -113,7 +113,7 @@
       "@schemas/*": ["models/schemas/*"],
       "@middlewares/*": ["middlewares/*"],
       "@controllers/*": ["controllers/*"],
-      "@repository/*": ["repository/*"],
+      "@repositories/*": ["repositories/*"],
       "@routers/*": ["routers/*"],
       "@utils/*": ["utils/*"],
       "@scripts/*": ["utils/scripts/*"],
