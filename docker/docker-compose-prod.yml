@@ -61,10 +61,11 @@ services:
       s3: 
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl -fs http://localhost:3000/api/v1/health"]
+      test: ["CMD-SHELL", "curl -fs http://localhost:3000/api/v1/health"]
       retries: 4
-      interval: 5s
+      interval: 10s
       timeout: 3s
+      start_period: 10s
     ports:
       - 3000:3000
     environment:
