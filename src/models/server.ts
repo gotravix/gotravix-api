@@ -11,7 +11,13 @@ class Server {
 
     app: Application;
     port: string ;
-    paths: { [key: string]: string };
+    paths: { 
+        auth: string,
+        users: string,
+        patients: string,
+        cases: string,
+        health: string
+    };
 
     constructor() {
         this.app = express();
@@ -19,9 +25,10 @@ class Server {
 
         this.paths = {
             auth: '/api/v1/auth',
-            users: '/api/v1/users',      
-            patients: '/api/v1/patients',      
-            case: '/api/v1/cases',      
+            users: '/api/v1/users',
+            patients: '/api/v1/patients',
+            cases: '/api/v1/cases',
+            health: '/api/v1/health',
         }
 
         // Middlewares
@@ -54,6 +61,7 @@ class Server {
         this.app.use(this.paths.auth, require('@/routes/authRoutes'));
         this.app.use(this.paths.users, require('@/routes/usersRoutes'));
         this.app.use(this.paths.patients, require('@/routes/patientRoutes'));
+        this.app.use(this.paths.health, require('@/routes/healthRoutes'));
     }
 
 
