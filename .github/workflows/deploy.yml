@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      # - arturo_dev
 
 jobs:
   build-test-deploy:
@@ -19,15 +18,19 @@ jobs:
           VPS_KEY: "${{secrets.VPS_KEY}}"
           VPS_USER: "${{secrets.VPS_USER}}"
           VPS_HOST: "${{secrets.VPS_HOST}}"
+          REPO_SHA: "${{ github.sha }}"
         run: |
             echo "Deploying to VPS..."
             echo  "${VPS_KEY}" > private.key && chmod 600 private.key;
             ssh -o StrictHostKeyChecking=no -i private.key $VPS_USER@$VPS_HOST bash -s << EOF
                 set -e
+                export GOTRAVIX_TAG=${REPO_SHA}
                 cd ~/$REPO_NAME || exit 1
-                git pull origin main || exit 1
+                git checkout main
+                git pull origin || exit 1
                 sudo docker compose -p gotravix --env-file .env -f docker/docker-compose-prod.yml build --pull --no-cache || exit 1
-                sudo docker compose -p gotravix --env-file .env -f docker/docker-compose-prod.yml up -d --remove-orphans || exit 1
+                # sudo docker compose -p gotravix --env-file .env -f docker/docker-compose-prod.yml up -d --force-recreate --remove-orphans || exit 1
+                sudo docker rollout --env-file .env -f docker/docker-compose-prod.yml backend 
                 echo "Deployment completed successfully."
             EOF
 
