@@ -29,7 +29,8 @@ jobs:
                 git pull origin main || exit 1
                 export GOTRAVIX_TAG=${REPO_SHA}
                 sudo docker compose -p gotravix --env-file .env -f docker/docker-compose-prod.yml build --pull --no-cache || exit 1
-                sudo docker compose -p gotravix --env-file .env -f docker/docker-compose-prod.yml up -d --force-recreate --remove-orphans || exit 1
+                # sudo docker compose -p gotravix --env-file .env -f docker/docker-compose-prod.yml up -d --force-recreate --remove-orphans || exit 1
+                sudo docker rollout --env-file .env -f docker/docker-compose-prod.yml backend 
                 echo "Deployment completed successfully."
             EOF
 

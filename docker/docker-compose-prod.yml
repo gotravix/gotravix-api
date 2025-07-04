@@ -47,7 +47,6 @@ services:
     volumes:
     - minio_data:/data
 
-
   backend:
     image: gotravix-api:${REPO_SHA:-stable}
     build:
@@ -61,13 +60,15 @@ services:
       s3: 
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -fs http://localhost:3000/api/v1/health"]
+      test: ["CMD-SHELL", "test -f ! /tmp/drain && curl -fs http://localhost:3000/api/v1/health"]
       retries: 4
-      interval: 10s
+      interval: 5s
       timeout: 3s
       start_period: 10s
     expose:
     - 3000
+    labels:
+      docker-rollout.pre-stop-hook: "touch /tmp/drain && sleep 30"
     environment:
     - NODE_ENV=${NODE_ENV:-development}
     - APP_ORIGIN=${APP_ORIGIN}
