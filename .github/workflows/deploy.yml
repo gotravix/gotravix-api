@@ -3,7 +3,7 @@ name: "Build, Test, and Deploy"
 on:
   push:
     branches:
-      - main
+      - fix_ci/cd
       # - arturo_dev
 
 jobs:
