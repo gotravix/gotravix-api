@@ -3,8 +3,7 @@ name: "Build, Test, and Deploy"
 on:
   push:
     branches:
-      - fix_ci/cd
-      # - arturo_dev
+      - main
 
 jobs:
   build-test-deploy:
@@ -27,7 +26,7 @@ jobs:
                 set -e
                 export GOTRAVIX_TAG=${REPO_SHA}
                 cd ~/$REPO_NAME || exit 1
-                git checkout fix_ci/cd
+                git checkout main
                 git pull origin || exit 1
                 sudo docker compose -p gotravix --env-file .env -f docker/docker-compose-prod.yml build --pull --no-cache || exit 1
                 # sudo docker compose -p gotravix --env-file .env -f docker/docker-compose-prod.yml up -d --force-recreate --remove-orphans || exit 1
