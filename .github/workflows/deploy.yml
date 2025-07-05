@@ -24,6 +24,7 @@ jobs:
             ssh -o StrictHostKeyChecking=no -i private.key $VPS_USER@$VPS_HOST bash -s << EOF
                 set -e
                 export REPO_SHA="${{github.sha}}"
+                echo "Here is the SHA! ${REPO_SHA}"
                 cd ~/$REPO_NAME || exit 1
                 git checkout main
                 git pull origin || exit 1
