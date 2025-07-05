@@ -20,8 +20,6 @@ jobs:
           VPS_HOST: "${{secrets.VPS_HOST}}"
         run: |
             echo "Deploying to VPS..."
-            echo "Here is the repo sha => ${REPO_SHA}"
-            echo "Here is the github_sha => ${{github.sha}}"
             echo  "${VPS_KEY}" > private.key && chmod 600 private.key;
             ssh -o StrictHostKeyChecking=no -i private.key $VPS_USER@$VPS_HOST bash -s << EOF
                 set -e
